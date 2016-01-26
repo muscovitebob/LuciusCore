@@ -1,0 +1,34 @@
+{
+  "protocol" : "L1000",
+  "namespace" : "com.data-intuitive.lucius.avro",
+  "types" : [ {
+    "type" : "record",
+    "name" : "Compound",
+    "fields" : [ {
+      "name" : "jnjs",
+      "type" : "int"
+    }, {
+      "name" : "jnjb",
+      "type" : "int"
+    }, {
+      "name" : "smiles",
+      "type" : "string"
+    }, {
+      "name" : "inchikey",
+      "type" : "string"
+    }, {
+      "name" : "compoundName",
+      "type" : "string"
+    }, {
+      "name" : "compoundType",
+      "type" : "string"
+    }, {
+      "name" : "compoundTargets",
+      "type" : {
+        "type" : "array",
+        "items" : "string"
+      }
+    } ]
+  } ],
+  "messages" : { }
+}

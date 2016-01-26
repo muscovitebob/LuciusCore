@@ -1,0 +1,41 @@
+@namespace("com.data-intuitive.lucius.avro")
+protocol L1000 {
+
+  record Compound {
+
+      int jnjs;
+
+      int jnjb;
+
+      string smiles;
+
+      string inchikey;
+
+      string compoundName;
+
+      string compoundType;
+
+      array<string> compoundTargets;
+
+  }
+
+  record L1000Sample {
+
+      string id;
+
+      string batch;
+
+      string plateid;
+
+      string well;
+
+      string protocolname;
+
+      string concentration;
+
+      string year
+
+  }
+
+
+}
