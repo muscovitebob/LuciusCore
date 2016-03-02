@@ -1,5 +1,5 @@
-@namespace("com.data-intuitive.lucius.avro")
-protocol L1000 {
+@namespace("com.dataintuitive.lucius.avro")
+protocol Compass {
 
   record Compound {
 
@@ -15,7 +15,7 @@ protocol L1000 {
 
       string compoundType;
 
-      array<string> compoundTargets;
+      union { null, array<string> } compoundTargets;
 
   }
 
@@ -33,9 +33,16 @@ protocol L1000 {
 
       string concentration;
 
-      string year
+      string year;
+
+      Compound compound;
+
+      array<double> tStats;
+
+      array<double> pStats;
+
+      union { null, array<double> } ranks;      
 
   }
-
 
 }

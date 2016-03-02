@@ -1,6 +1,6 @@
 {
-  "protocol" : "L1000",
-  "namespace" : "com.data-intuitive.lucius.avro",
+  "protocol" : "Compass",
+  "namespace" : "com.dataintuitive.lucius.avro",
   "types" : [ {
     "type" : "record",
     "name" : "Compound",
@@ -24,10 +24,56 @@
       "type" : "string"
     }, {
       "name" : "compoundTargets",
-      "type" : {
+      "type" : [ "null", {
         "type" : "array",
         "items" : "string"
+      } ]
+    } ]
+  }, {
+    "type" : "record",
+    "name" : "L1000Sample",
+    "fields" : [ {
+      "name" : "id",
+      "type" : "string"
+    }, {
+      "name" : "batch",
+      "type" : "string"
+    }, {
+      "name" : "plateid",
+      "type" : "string"
+    }, {
+      "name" : "well",
+      "type" : "string"
+    }, {
+      "name" : "protocolname",
+      "type" : "string"
+    }, {
+      "name" : "concentration",
+      "type" : "string"
+    }, {
+      "name" : "year",
+      "type" : "string"
+    }, {
+      "name" : "compound",
+      "type" : "Compound"
+    }, {
+      "name" : "tStats",
+      "type" : {
+        "type" : "array",
+        "items" : "double"
       }
+    }, {
+      "name" : "pStats",
+      "type" : {
+        "type" : "array",
+        "items" : "double"
+      }
+    }, {
+      "name" : "ranks",
+      "type" : [ "null", {
+        "type" : "array",
+        "items" : "double"
+      } ]
     } ]
   } ],
   "messages" : { }
