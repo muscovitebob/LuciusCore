@@ -18,13 +18,7 @@
 .idea_modules/
 
 dist/*
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
+*.class
+*.log
 
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
 .ws
-
