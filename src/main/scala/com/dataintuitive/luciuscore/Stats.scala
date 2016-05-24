@@ -33,13 +33,13 @@ trait Stats[T <: Product] {
 
 class Stats1D(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD] with Serializable {
 
-  val asRddKV = asRdd
+  def asRddKV = asRdd
 
 }
 
 class StatsT(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD] with Serializable {
 
-  val asRddKV = asRdd
+  def asRddKV = asRdd
 
   def addP(sc: SparkContext, StatsFile: String, delimiter: String = "\t", zeroValue: Double = 0.0) = {
     val statsP = Stats(sc, StatsFile, delimiter, zeroValue)
@@ -60,7 +60,7 @@ class StatsTP(val rdd: RDD[TP], val features: Array[String]) extends Stats[TP] w
 
   import TransformationFunctions._
 
-  val asRddKV = asRdd.map { case (pwid, v1, v2) => (pwid, (v1, v2)) }
+  def asRddKV = asRdd.map { case (pwid, v1, v2) => (pwid, (v1, v2)) }
 
   def addRanks:StatsTPR = new StatsTPR (
     asRdd
@@ -73,7 +73,7 @@ class StatsTP(val rdd: RDD[TP], val features: Array[String]) extends Stats[TP] w
 
 class StatsTPR(val rdd: RDD[TPR], val features: Array[String]) extends Stats[TPR] with Serializable {
 
-  val asRddKV = asRdd.map { case (pwid, v1, v2, v3) => (pwid, (v1, v2, v3)) }
+  def asRddKV = asRdd.map { case (pwid, v1, v2, v3) => (pwid, (v1, v2, v3)) }
 
   def addAnnotations(sampleCompoundRelations: SampleCompoundRelations):AnnotatedStatsTPR = {
     new AnnotatedStatsTPR(
@@ -91,7 +91,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
 
   import ZhangScoreFunctions._
 
-  val asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3) => (pwid, (sample, compound, v1, v2, v3)) }
+  def asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3) => (pwid, (sample, compound, v1, v2, v3)) }
   def pwidLookup(s: String) = asRddKV.lookup(s)
 
   def addZhang(query:RankVector) = {
@@ -111,7 +111,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
 
 class ZhangAnnotatedStatsTPR(val rdd:RDD[ZATPR], val features: Array[String]) extends Stats[ZATPR] with Serializable {
 
-  val asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3, zhang) => (pwid, (sample, compound, v1, v2, v3, zhang)) }
+  def asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3, zhang) => (pwid, (sample, compound, v1, v2, v3, zhang)) }
 
 }
 
