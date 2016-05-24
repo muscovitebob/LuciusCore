@@ -16,7 +16,8 @@ trait Stats[T <: Product] {
   val rdd: RDD[T]
   val features: Array[String]
 
-  val asRdd = rdd
+  // Cache here, and make sure the rest uses the cached version
+  val asRdd = rdd.cache
 
   // Using the Product's iterator, we can simulate the _1 method on Tuples
   val samplesRdd: RDD[String] = rdd
@@ -31,13 +32,13 @@ trait Stats[T <: Product] {
 
 class Stats1D(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD] with Serializable {
 
-  val asRddKV = rdd
+  val asRddKV = asRdd
 
 }
 
 class StatsT(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD] with Serializable {
 
-  val asRddKV = rdd
+  val asRddKV = asRdd
 
   def addP(sc: SparkContext, StatsFile: String, delimiter: String = "\t", zeroValue: Double = 0.0) = {
     val statsP = Stats(sc, StatsFile, delimiter, zeroValue)
@@ -58,7 +59,7 @@ class StatsTP(val rdd: RDD[TP], val features: Array[String]) extends Stats[TP] w
 
   import TransformationFunctions._
 
-  val asRddKV = rdd.map { case (pwid, v1, v2) => (pwid, (v1, v2)) }
+  val asRddKV = asRdd.map { case (pwid, v1, v2) => (pwid, (v1, v2)) }
 
   def addRanks:StatsTPR = new StatsTPR (
     rdd
@@ -71,7 +72,7 @@ class StatsTP(val rdd: RDD[TP], val features: Array[String]) extends Stats[TP] w
 
 class StatsTPR(val rdd: RDD[TPR], val features: Array[String]) extends Stats[TPR] with Serializable {
 
-  val asRddKV = rdd.map { case (pwid, v1, v2, v3) => (pwid, (v1, v2, v3)) }
+  val asRddKV = asRdd.map { case (pwid, v1, v2, v3) => (pwid, (v1, v2, v3)) }
 
   def addAnnotations(sampleCompoundRelations: SampleCompoundRelations):AnnotatedStatsTPR = {
     new AnnotatedStatsTPR(
@@ -89,7 +90,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
 
   import ZhangScoreFunctions._
 
-  val asRddKV = rdd.map { case (pwid, sample, compound, v1, v2, v3) => (pwid, (sample, compound, v1, v2, v3)) }
+  val asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3) => (pwid, (sample, compound, v1, v2, v3)) }
   def pwidLookup(s: String) = asRddKV.lookup(s)
 
   def addZhang(query:RankVector) = {
@@ -98,7 +99,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
         x.sample,
         x.compound,
         x.t,
-        x.t,
+        x.p,
         x.r,
         connectionScore(x.r, query)
       ))
@@ -109,7 +110,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
 
 class ZhangAnnotatedStatsTPR(val rdd:RDD[ZATPR], val features: Array[String]) extends Stats[ZATPR] with Serializable {
 
-  val asRddKV = rdd.map { case (pwid, sample, compound, v1, v2, v3, zhang) => (pwid, (sample, compound, v1, v2, v3, zhang)) }
+  val asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3, zhang) => (pwid, (sample, compound, v1, v2, v3, zhang)) }
 
 }
 
@@ -137,7 +138,7 @@ object Stats {
         .map { x =>
         (x(0), x.drop(1).map { x => Try {
           x.toDouble
-        }.toOption.getOrElse(0.0)
+        }.toOption.getOrElse(zeroValue)
         })
       }
 
