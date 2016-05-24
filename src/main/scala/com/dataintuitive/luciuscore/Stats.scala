@@ -20,13 +20,14 @@ trait Stats[T <: Product] {
   val asRdd = rdd.cache
 
   // Using the Product's iterator, we can simulate the _1 method on Tuples
-  val samplesRdd: RDD[String] = rdd
+  // This can be a real bottleneck if not careful. Make it a function!
+  def samplesRdd: RDD[String] = asRdd
     .map(_.productIterator
       .next()
       .toString
     )
 
-  val samples = samplesRdd.collect
+  def samples = samplesRdd.collect
 
 }
 
@@ -42,13 +43,13 @@ class StatsT(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD
 
   def addP(sc: SparkContext, StatsFile: String, delimiter: String = "\t", zeroValue: Double = 0.0) = {
     val statsP = Stats(sc, StatsFile, delimiter, zeroValue)
-    val joinedRdd = rdd.join(statsP.asRdd)
+    val joinedRdd = asRdd.join(statsP.asRdd)
     new StatsTP(joinedRdd.map { case (pwid, (t, p)) => (pwid, t, p) }, features)
   }
 
   def addP(p:StatsT) = {
     val statsP = p
-    val joinedRdd = rdd.join(statsP.asRdd)
+    val joinedRdd = asRdd.join(statsP.asRdd)
     new StatsTP(joinedRdd.map { case (pwid, (t, p)) => (pwid, t, p) }, features)
   }
 
@@ -62,7 +63,7 @@ class StatsTP(val rdd: RDD[TP], val features: Array[String]) extends Stats[TP] w
   val asRddKV = asRdd.map { case (pwid, v1, v2) => (pwid, (v1, v2)) }
 
   def addRanks:StatsTPR = new StatsTPR (
-    rdd
+    asRdd
       .map {
         v => (v._1, v._2, v._3, valueVector2AvgRankVectorWithZeros(v))
       },
@@ -94,7 +95,7 @@ class AnnotatedStatsTPR(val rdd:RDD[ATPR], val features: Array[String]) extends 
   def pwidLookup(s: String) = asRddKV.lookup(s)
 
   def addZhang(query:RankVector) = {
-    val addedZhang = rdd.map( x =>
+    val addedZhang = asRdd.map( x =>
       (x.pwid,
         x.sample,
         x.compound,
@@ -113,7 +114,6 @@ class ZhangAnnotatedStatsTPR(val rdd:RDD[ZATPR], val features: Array[String]) ex
   val asRddKV = asRdd.map { case (pwid, sample, compound, v1, v2, v3, zhang) => (pwid, (sample, compound, v1, v2, v3, zhang)) }
 
 }
-
 
 object Stats {
 
