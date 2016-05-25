@@ -18,14 +18,14 @@ class SampleCompoundRelations(val sampleCompoundAnnotationsRdd: RDD[SampleCompou
 
   val dictionaryRdd = createDictionary
   val inverseDictionaryRdd = dictionaryRdd.map(_.swap)
-  val asRdd = sampleCompoundAnnotationsRdd
+  val asRdd = sampleCompoundAnnotationsRdd.cache
 
   def createDictionary = {
-    sampleCompoundAnnotationsRdd
+    asRdd
       .map(x => (x.sample.samplePwid, x.compound.compoundJnjs))
   }
 
-  def asRddKV = sampleCompoundAnnotationsRdd.map(x => (x.sample.samplePwid, x))
+  def asRddKV = asRdd.map(x => (x.sample.samplePwid, x))
 
 }
 
