@@ -41,20 +41,20 @@ package object luciuscore {
   type ATPR = Tuple6[String, Sample, Compound, Array[Double], Array[Double], Array[Double]]
   type ZATPR = Tuple7[String, Sample, Compound, Array[Double], Array[Double], Array[Double], Double]
 
-  class TPExtension(val x: TP) {
+  class TPExtension(val x: TP) extends Serializable {
     val pwid = x._1
     val t = x._2
     val p = x._3
   }
 
-  class TPRExtension(val x: TPR) {
+  class TPRExtension(val x: TPR) extends Serializable  {
     val pwid = x._1
     val t = x._2
     val p = x._3
     val r = x._4
   }
 
-  class ATPRExtension(val x: ATPR) {
+  class ATPRExtension(val x: ATPR) extends Serializable  {
     val pwid = x._1
     val sample = x._2
     val compound = x._3
@@ -63,7 +63,7 @@ package object luciuscore {
     val r = x._6
   }
 
-  class ZATPRExtension(val x: ZATPR) {
+  class ZATPRExtension(val x: ZATPR) extends Serializable  {
     val pwid = x._1
     val sample = x._2
     val compound = x._3
@@ -81,6 +81,5 @@ package object luciuscore {
   implicit def extraATPR(x:ATPR) = new ATPRExtension(x)
 
   implicit def extraZATPR(x:ZATPR) = new ZATPRExtension(x)
-
-
+  
 }
