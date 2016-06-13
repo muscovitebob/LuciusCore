@@ -43,8 +43,11 @@ class StatsT(val rdd: RDD[OneD], val features: Array[String]) extends Stats[OneD
 
   def addP(sc: SparkContext, StatsFile: String, delimiter: String = "\t", zeroValue: Double = 0.0) = {
     val statsP = Stats(sc, StatsFile, delimiter, zeroValue)
-    val joinedRdd = asRdd.join(statsP.asRdd)
-    new StatsTP(joinedRdd.map { case (pwid, (t, p)) => (pwid, t, p) }, features)
+    val joinedRdd =
+      asRdd
+        .join(statsP.asRdd)
+        .map { case (pwid, (t, p)) => (pwid, t, p) }
+    new StatsTP(joinedRdd, features)
   }
 
   def addP(p:StatsT) = {
@@ -136,13 +139,17 @@ object Stats {
         .filter(_._2 > 0) // drop first row
         .map(_._1) // index not needed anymore
         .map { x =>
-        (x(0), x.drop(1).map { x => Try {
-          x.toDouble
-        }.toOption.getOrElse(zeroValue)
-        })
-      }
+        (x(0),
+          x.drop(1).map { y => Try { y.toDouble }.toOption.getOrElse(zeroValue) }
+          )
+        }
 
-    new StatsT(statsRdd, statsFeatures)
+    // Experiment: add caching already and make sure it's persisted
+    // TODO -- Remove later when all runs smooth
+    val statsRddCached = statsRdd.cache
+    val cnt = statsRddCached.count
+
+    new StatsT(statsRddCached, statsFeatures)
   }
 
   def apply(t: Stats1D, p: Stats1D): StatsTP = {

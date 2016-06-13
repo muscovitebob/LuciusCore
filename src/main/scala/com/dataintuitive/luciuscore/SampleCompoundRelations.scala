@@ -16,9 +16,9 @@ class SampleCompoundRelation(val sample:Sample,
 
 class SampleCompoundRelations(val sampleCompoundAnnotationsRdd: RDD[SampleCompoundRelation]) extends Serializable {
 
+  val asRdd = sampleCompoundAnnotationsRdd.cache
   val dictionaryRdd = createDictionary
   val inverseDictionaryRdd = dictionaryRdd.map(_.swap)
-  val asRdd = sampleCompoundAnnotationsRdd.cache
 
   def createDictionary = {
     asRdd

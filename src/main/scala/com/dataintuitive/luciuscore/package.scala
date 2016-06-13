@@ -81,5 +81,5 @@ package object luciuscore {
   implicit def extraATPR(x:ATPR) = new ATPRExtension(x)
 
   implicit def extraZATPR(x:ZATPR) = new ZATPRExtension(x)
-  
+
 }
