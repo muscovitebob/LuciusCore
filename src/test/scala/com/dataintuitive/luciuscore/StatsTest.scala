@@ -2,19 +2,14 @@ package com.dataintuitive.luciuscore
 
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.FlatSpec
+import com.dataintuitive.test.BaseSparkContextSpec
 
 /**
   * Created by toni on 22/04/16.
   */
-class StatsTest extends FlatSpec {
+class StatsTest extends FlatSpec with BaseSparkContextSpec {
 
   info("Test Stats class, loading and parsing of data")
-
-  // Start local sparkContext
-  val conf = new SparkConf()
-    .setAppName("luciuscoreTests")
-    .setMaster("local")
-  val sc = new SparkContext(conf)
 
   val data = Stats(sc, "src/test/resources/statsfile.tsv", "\t")
 

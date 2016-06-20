@@ -1,12 +1,13 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.test.BaseSparkContextSpec
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.FlatSpec
 
 /**
   * Created by toni on 22/04/16.
   */
-class GeneTest extends FlatSpec {
+class GeneTest extends FlatSpec with BaseSparkContextSpec {
 
   info("Test model for gene annotations")
 
@@ -23,12 +24,6 @@ class GeneTest extends FlatSpec {
     assert(gene.entrezid === "entrezidString")
     assert(gene.probesetid === "probesetidString")
   }
-
-  // Start local sparkContext
-  val conf = new SparkConf()
-    .setAppName("luciuscoreTests")
-    .setMaster("local")
-  val sc = new SparkContext(conf)
 
   val genes = Genes(sc, "src/test/resources/genesfile.tsv", "\t")
 
