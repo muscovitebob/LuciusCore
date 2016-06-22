@@ -68,7 +68,6 @@ object ExperimentalModel extends Serializable {
     // Map None to empty set as part of the high-level API
     def getKnownTargets = knownTargets.getOrElse(Set())
     def getPredictedTargets = predictedTargets.getOrElse(Set())
-    def getAnnotation = compound
     def knownTargetsDefined = knownTargets.isDefined
     def predictedTargetsDefined = predictedTargets.isDefined
 
