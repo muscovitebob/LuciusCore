@@ -73,7 +73,6 @@ package object luciuscore {
     val zhang = x._7
   }
 
-
   implicit def extraTP(x:TP) = new TPExtension(x)
 
   implicit def extraTPR(x:TPR) = new TPRExtension(x)

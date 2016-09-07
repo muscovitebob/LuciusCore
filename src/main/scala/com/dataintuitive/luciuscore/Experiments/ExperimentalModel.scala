@@ -19,8 +19,7 @@ object ExperimentalModel extends Serializable {
                                 val sample: Sample,
                                 val t: Option[Array[Double]] = None,
                                 val p: Option[Array[Double]] = None,
-                                val r: Option[Array[Double]] = None,
-                                val z: Option[Array[Double]] = None
+                                val r: Option[Array[Double]] = None
                               ) extends Serializable {
 
     def getSample = sample
@@ -28,7 +27,6 @@ object ExperimentalModel extends Serializable {
     def tDefined = t.isDefined
     def pDefined = p.isDefined
     def rDefined = r.isDefined
-    def zDefined = z.isDefined
 
   }
 
