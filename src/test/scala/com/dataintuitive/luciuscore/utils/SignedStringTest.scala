@@ -3,7 +3,7 @@ package com.dataintuitive.luciuscore.utils
 import org.scalatest.FlatSpec
 
 
-lass SignedStringTest extends FlatSpec {
+class SignedStringTest extends FlatSpec {
 
   info("Test String extensions")
 
