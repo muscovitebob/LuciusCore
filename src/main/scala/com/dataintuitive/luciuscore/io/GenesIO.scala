@@ -25,6 +25,8 @@ object GenesIO {
     * psid3 entrezid3 ens3  symbol3 name3
     * }}}
     *
+    * Remark: Even if the input does not contain all info to fill the datastructure, we need to provide a features vector of size 5!
+    *
     * @param sc SparkContext
     * @param geneAnnotationsFile The location of the file
     * @param delimiter The delimiter to use when parsing the input file. Default is `tab`
@@ -35,6 +37,8 @@ object GenesIO {
                geneAnnotationsFile: String,
                delimiter: String = "\t",
                features:Seq[String] = Seq("probesetid", "entrezid", "ensemblid", "symbol", "name")): Genes = {
+
+      require(features.length == 5, "The length of the features vector needs to 5")
 
       val rawGenesRdd = sc.textFile(geneAnnotationsFile).map(_.split(delimiter))
 
