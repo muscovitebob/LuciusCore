@@ -1,12 +1,9 @@
-package com.dataintuitive.luciuscore.Experiments
-
-import org.scalatest.FlatSpec
-import ExperimentalModel._
+package com.dataintuitive.luciuscore
 
 /**
   * Created by toni on 15/06/16.
   */
-class ExperimentalModelTest extends FlatSpec {
+class ModelTest extends FlatSpec {
 
   info("Test Experimental Model")
 

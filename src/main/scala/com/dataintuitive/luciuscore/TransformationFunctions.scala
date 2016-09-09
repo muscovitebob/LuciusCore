@@ -1,6 +1,4 @@
-package com.dataintuitive.luciuscore.lowlevel
-
-import com.dataintuitive.luciuscore._
+package com.dataintuitive.luciuscore
 
 /**
   * Created by toni on 27/04/16.
@@ -13,13 +11,13 @@ object TransformationFunctions {
 
   // Calculate the intersection of a selection of samples/compounds
   // by calculating the median values of the significant t-stats per features/gene.
-  def valueVectorSelection2ValueVector(selection: Array[TP], significanceThreshold: Double = 0.05): ValueVector = {
+  def valueVectorSelection2ValueVector(selection: Array[Tuple3[String, Array[Double], Array[Double]]], significanceThreshold: Double = 0.05): ValueVector = {
     selection.
       flatMap {
         // Join datasets and add index for genes
         x => {
-          val t = x.t
-          val p = x.p
+          val t = x._1
+          val p = x._2
           p.zip(t).zipWithIndex.map { case ((p, t), i) => (i, (t, p)) }
         }
       }
@@ -53,14 +51,14 @@ object TransformationFunctions {
   // An implementation of this function that takes into account zero values.
   // A better approach to converting a value vector into a rank vector.
   // Be careful, ranks start at 1 in this implementation!
-  def valueVector2AvgRankVectorWithZeros(tp: TP): RankVector = {
+  def valueVector2AvgRankVectorWithZeros(tp: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
 
     // Helper function
     def avgUnsignedRank(ranks: RankVector): Double = {
       ranks.foldLeft(0.0)(+_ + _) / ranks.length
     }
 
-    val v = tp.t
+    val v = tp._1
 
     val zeros = v.count(_ == 0.0)
 
@@ -93,7 +91,7 @@ object TransformationFunctions {
       .values
       .map {
         // Add an annotation for the average unsigned rank
-        vector => vector.map(x => x ++ Map("avgUnsignedRank" -> avgUnsignedRank(vector.map(_ ("unsignedRank")))))
+        vector => vector.map(x => x ++ Map("avgUnsignedRank" -> avgUnsignedRank(vector.map(_ ("unsignedRank")).toArray)))
       }
       .flatMap(x => x).toList
       .sortBy(_ ("origIndex")) // Recover the original ordering
@@ -111,22 +109,23 @@ object TransformationFunctions {
   // A simple approach to convert a value vector into a rank vector
   // This procedure does not take into account the ordering of equal values
   @deprecated
-  def valueVector2RankVector(v: TP): RankVector = {
-    val t = v.t
+  def valueVector2RankVector(v: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
+    val t = v._1
     t.zipWithIndex
       .sortBy(x => Math.abs(x._1))
       .zipWithIndex
       .sortBy(_._1._2)
       .map(x => if (x._1._1 >= 0) x._2 else -x._2)
       .map(_.toDouble)
+      .toArray
   }
 
   // A better approach to converting a value vector into a rank vector.
   // Still, significance is not taken into account
   @deprecated
-  def valueVector2AvgRankVector(v: TP): RankVector = {
+  def valueVector2AvgRankVector(v: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
 
-    val t = v.t
+    val t = v._1
 
     // Helper function
     def avg_unsigned_rank(ranks: RankVector): Double =
@@ -139,7 +138,7 @@ object TransformationFunctions {
       .map(x => Map[String, Double]("value" -> x._1._1, "orig_index" -> x._1._2, "unsigned_rank" -> x._2))
       .groupBy(x => Math.abs(x("value")))
       .map(_._2)
-      .map(vector => vector.map(x => x ++ Map("avg_unsigned_rank" -> avg_unsigned_rank(vector.map(_ ("unsigned_rank"))))))
+      .map(vector => vector.map(x => x ++ Map("avg_unsigned_rank" -> avg_unsigned_rank(vector.map(_ ("unsigned_rank")).toArray))))
       .flatMap(x => x).toList
       .sortBy(_ ("orig_index"))
       .map(x => if (x("value") >= 0) x("avg_unsigned_rank") else -x("avg_unsigned_rank"))

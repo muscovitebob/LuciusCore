@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.TOBEREMOVED
 
 /**
   * Created by toni on 20/04/16.

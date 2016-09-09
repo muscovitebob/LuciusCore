@@ -1,10 +1,10 @@
-package com.dataintuitive.luciuscore.Experiments
+package com.dataintuitive.luciuscore
 
 /**
   * Created by toni on 15/06/16.
   */
 
-object ExperimentalModel extends Serializable {
+object Model extends Serializable {
 
   type Gene = String
   type Row = Array[Option[String]]

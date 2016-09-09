@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.TOBEREMOVED
 
 import com.dataintuitive.luciuscore._
 import com.dataintuitive.luciuscore.lowlevel.{TransformationFunctions, VectorFunctions, ZhangScoreFunctions}

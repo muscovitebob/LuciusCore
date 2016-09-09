@@ -1,7 +1,7 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.TOBEREMOVED
 
-import com.dataintuitive.luciuscore.lowlevel.ioFunctions.loadTsv
-
+import com.dataintuitive.luciuscore.lowlevel.IoFunctions.loadTsv
+import com.dataintuitive.luciuscore.{Compound, Sample}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 

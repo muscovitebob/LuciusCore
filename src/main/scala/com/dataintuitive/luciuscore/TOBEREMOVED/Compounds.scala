@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.TOBEREMOVED
 
 import org.apache.spark.rdd.RDD
 
