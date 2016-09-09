@@ -1,15 +1,21 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.utils
 
 /**
-  * Created by toni on 22/04/16.
+  * A helper class to work with signed strings in gene lists and signatures.
+  *
+  * Can easily be used with implicits.
   */
-class GeneString(val string: String) {
-  //  Take the sign of a gene in a signature
+class SignedString(val string: String) {
+  /**
+    * Return the sign (as `String`) of a `SignedString`.
+    */
   def sign: String =
     if (string.startsWith ("-") ) "-"
     else ""
 
-  //  Take the absolute value of a gene in a signature
+  /**
+    * Return the absolute value (as `String`) of a `SignedString`.
+    */
   def abs: String =
     if (string.startsWith ("-") ) string.drop (1)
     else string

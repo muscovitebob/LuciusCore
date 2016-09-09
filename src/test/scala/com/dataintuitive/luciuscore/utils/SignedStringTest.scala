@@ -1,13 +1,9 @@
-package com.dataintuitive.luciuscore.lowlevel
+package com.dataintuitive.luciuscore.utils
 
-import com.dataintuitive.luciuscore.utils.SignedString
 import org.scalatest.FlatSpec
 
 
-/**
-  * Created by toni on 22/04/16.
-  */
-class SignedStringTest extends FlatSpec {
+lass SignedStringTest extends FlatSpec {
 
   info("Test String extensions")
 
