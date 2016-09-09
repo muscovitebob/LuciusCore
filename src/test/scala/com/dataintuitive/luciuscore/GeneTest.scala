@@ -11,7 +11,7 @@ class GeneTest extends FlatSpec with BaseSparkContextSpec {
 
   info("Test model for gene annotations")
 
-  val gene: Gene = new Gene("probesetidString",
+  val gene: GeneAnnotation = new GeneAnnotation("probesetidString",
     "entrezidString",
     "ensemblidString",
     "symbolString",
@@ -23,12 +23,6 @@ class GeneTest extends FlatSpec with BaseSparkContextSpec {
     assert(gene.ensemblid === "ensemblidString")
     assert(gene.entrezid === "entrezidString")
     assert(gene.probesetid === "probesetidString")
-  }
-
-  val genes = Genes(sc, "src/test/resources/genesfile.tsv", "\t")
-
-  "Loading gene data from a file" should "work" in {
-    assert(genes.genes(0).ensemblid === "ens1")
   }
 
 
