@@ -1,9 +1,18 @@
 package com.dataintuitive.luciuscore
 
-/*
- * A signature is sparse representation of a vector referring to the indices in the dense array
- */
+import com.dataintuitive.luciuscore.utils.SignedString
 
+/**
+ * A signature is sparse representation of a vector referring to the indices in a dense array.
+ *
+ * 3 implementations exist, depending on the naming scheme involved:
+ *
+ *  1. `SymbolSignature` when using gene symbol notation (e.g. MELK, BRCA1, ...).
+ *
+ *  2. `ProbesetIdSignature` when using the probeset ids used in experiments.
+ *
+ *  3. `IndexSignature` when using indices referring to the dense vector/array.
+ */
 trait Signature {
 
   type T
@@ -15,7 +24,7 @@ trait Signature {
   // The flow is Symbol -> Probesetid -> Index and back
   val notation: NotationType
 
-  implicit def stringExtension(string: String) = new GeneString(string)
+  implicit def stringExtension(string: String) = new SignedString(string)
 
   override def toString = signature.mkString(s"Signature of type ${notation}: [", ",", "]")
 
@@ -23,30 +32,44 @@ trait Signature {
 
 }
 
+/**
+  * Companion object to the `Signature` trait.
+  *
+  * This object defines a convencience `apply` method to create a signature of any type:
+  *
+  * {{{
+  * val symbolList = Signature(Array("symbol2", "-symbol1"), "symbol")
+  * val probesetidList = Signature(Array("psid2", "-psid1"), "probesetid")
+  * }}}
+  *
+ */
 object Signature {
 
-  /* This will be updated to reflect heuristics that distinguish the different types of
-   * signatures. For now, we stick to SymbolSignature as the target type.
-   */
+  /**
+    * This will be updated to reflect heuristics that distinguish the different types of
+    * signatures. For now, we stick to SymbolSignature as the target type.
+    */
   def apply(s: SignatureType): Signature = {
     new SymbolSignature(s)
   }
 
-  /* Generate Signature of provided type/notation.
-   *   ! This does not work as expected, the class is registered as Signature which does not have the correct methods
-   *   -- TODO --
-   */
-  def apply(s: SignatureType, notation: String) = {
+  /**
+    * Generate a Signature of provided type/notation.
+    */
+  def apply(s: SignatureType, notation: String):Signature = {
     notation match {
-      case "symbol" => new SymbolSignature(s)
-      case "probesetid" => new ProbesetidSignature(s)
-      case "index" => new IndexSignature(s)
+      case "symbol" => SymbolSignature(s)
+      case "probesetid" => ProbesetidSignature(s)
+      case "index" => IndexSignature(s)
       case _ => println("Wrong signature type, please try again") ; SymbolSignature(s)
     }
   }
 
 }
 
+/**
+  * Signature with symbol notation.
+  */
 case class SymbolSignature(val signature: SignatureType) extends Signature with Serializable {
 
   val notation: NotationType = SYMBOL
@@ -66,7 +89,10 @@ case class SymbolSignature(val signature: SignatureType) extends Signature with 
 
 }
 
-class ProbesetidSignature(val signature: SignatureType) extends Signature with Serializable {
+/**
+  * Signature with probesetid notation.
+  */
+case class ProbesetidSignature(val signature: SignatureType) extends Signature with Serializable {
 
   val notation: NotationType = PROBESETID
 
@@ -103,7 +129,10 @@ class ProbesetidSignature(val signature: SignatureType) extends Signature with S
 
 }
 
-class IndexSignature(val signature: SignatureType) extends Signature with Serializable {
+/**
+  * Signature with index notation.
+  */
+case class IndexSignature(val signature: SignatureType) extends Signature with Serializable {
 
   val notation: NotationType = INDEX
 

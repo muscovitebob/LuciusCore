@@ -1,21 +1,32 @@
 package com.dataintuitive.luciuscore
 
-import org.scalatest.FlatSpec
+import org.scalatest.{FlatSpec, Matchers}
 
-/**
-  * Created by toni on 22/04/16.
-  */
-class SignatureTest extends FlatSpec {
+class SignatureTest extends FlatSpec with Matchers {
+
+  info("Test companion object")
+
+  val validSymbolSignatureCreated = Signature(Array("symbol2", "-symbol1"), "symbol")
+  val validProbesetidSignatureCreated = Signature(Array("psid2", "-psid1"), "probesetid")
+
+  "Companion object for Symbol" should "create correct object" in {
+    validSymbolSignatureCreated.toString should equal ("Signature of type symbol: [symbol2,-symbol1]")
+  }
+
+  "Companion object for Probeset" should "create correct object" in {
+    validProbesetidSignatureCreated.toString should equal ("Signature of type probesetid: [psid2,-psid1]")
+  }
+
 
   info("Test GeneSignature model, first just symbol and probesetid")
 
   // Translation is done using a dictionary
   val dict:GeneDictionary = Map("symbol1" -> "psid1", "symbol2" -> "psid2")
 
-  val validSymbolSignature = new SymbolSignature(Array("symbol2", "-symbol1"))
-  val validProbesetidSignature = new ProbesetidSignature(Array("psid2", "-psid1"))
-  val invalidSymbolSignature = new SymbolSignature(Array("-symbol1", "symbol3"))
-  val invalidProbesetidSignature = new ProbesetidSignature(Array("-psid1", "psid3"))
+  val validSymbolSignature = SymbolSignature(Array("symbol2", "-symbol1"))
+  val validProbesetidSignature = ProbesetidSignature(Array("psid2", "-psid1"))
+  val invalidSymbolSignature = SymbolSignature(Array("-symbol1", "symbol3"))
+  val invalidProbesetidSignature = ProbesetidSignature(Array("-psid1", "psid3"))
 
   "The notation for a symbol signature" should "be correct" in {
     assert(validSymbolSignature.notation === "symbol")
