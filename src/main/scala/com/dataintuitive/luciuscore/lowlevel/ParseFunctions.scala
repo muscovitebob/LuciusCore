@@ -12,7 +12,9 @@ import org.apache.spark.rdd.RDD
   *   2. `retrieveArray` parses the `RDD` and returns a simple `RDD`
   *
   * The dimension of the returned `RDD` corresponds to the features selected. As a consequence,
-  * Providing wrong feature names results in a column of all `None` `Option` values
+  * Providing wrong feature names results in a column of all `None` `Option` values.
+  *
+  * Please refer to the tests for more information.
   */
 object ParseFunctions extends Serializable {
 
