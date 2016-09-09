@@ -6,7 +6,7 @@ import org.apache.spark.rdd.RDD
 /**
   * Created by toni on 28/04/16.
   */
-object ioFunctions {
+object IoFunctions {
 
   def loadTsv(sc: SparkContext,
                                   sampleCompoundAnnotationsFile: String,

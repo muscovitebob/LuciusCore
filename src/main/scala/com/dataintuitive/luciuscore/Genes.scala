@@ -1,8 +1,7 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.lowlevel.GeneDictionaryFunctions
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
+import com.dataintuitive.luciuscore.Model._
 
 /**
   * Class for holding information about a gene.

@@ -1,12 +1,41 @@
 package com.dataintuitive.luciuscore
 
 /**
-  * Created by toni on 15/06/16.
+  * The types and classes used throughout Lucius.
+  *
+  * Be aware: The gene-model is not (yet) included here.
   */
-
 object Model extends Serializable {
 
+  type Probesetid = String
+  type Symbol = String
+
+  type GeneDictionary = Map[Symbol, Probesetid]
+  type InverseGeneDictionary = Map[Probesetid,Symbol]
+
+  type NotationType = String
+  val SYMBOL = "symbol"
+  val PROBESETID = "probesetid"
+  val INDEX = "index"
+
+
+  // For Vector derivatives
+  type Value = Double
+  type ValueVector = Array[Value]
+
+  type Rank = Double
+
   type Gene = String
+  type RankVector = Array[Double]
+  type GeneVector = Array[String]
+
+  type SignatureType = GeneVector
+
+  // A set could be a good way to represent an unordered signature
+  type UnorderedSignature = Set[String]
+
+  type Index = Int
+
   type Row = Array[Option[String]]
 
   case class DbRow(

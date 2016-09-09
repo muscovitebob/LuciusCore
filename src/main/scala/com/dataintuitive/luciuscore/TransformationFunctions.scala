@@ -1,5 +1,7 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.Model._
+
 /**
   * Created by toni on 27/04/16.
   */
@@ -47,7 +49,6 @@ object TransformationFunctions {
   }
 
 
-
   // An implementation of this function that takes into account zero values.
   // A better approach to converting a value vector into a rank vector.
   // Be careful, ranks start at 1 in this implementation!
@@ -55,7 +56,7 @@ object TransformationFunctions {
 
     // Helper function
     def avgUnsignedRank(ranks: RankVector): Double = {
-      ranks.foldLeft(0.0)(+_ + _) / ranks.length
+      ranks.foldLeft(0.0)(_ + _) / ranks.length
     }
 
     val v = tp._1

@@ -1,6 +1,7 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.utils.SignedString
+import com.dataintuitive.luciuscore.Model._
 
 /**
   * A signature is sparse representation of a vector referring to the indices in a dense array.

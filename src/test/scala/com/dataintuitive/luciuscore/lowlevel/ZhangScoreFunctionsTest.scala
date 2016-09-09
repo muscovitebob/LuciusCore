@@ -1,6 +1,6 @@
 package com.dataintuitive.luciuscore.lowlevel
 
-import com.dataintuitive.luciuscore._
+import com.dataintuitive.luciuscore.Model._
 import ZhangScoreFunctions._
 
 import org.scalatest.FlatSpec

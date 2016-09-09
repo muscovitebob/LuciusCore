@@ -1,6 +1,7 @@
 package com.dataintuitive.luciuscore.lowlevel
 
-import com.dataintuitive.luciuscore._
+import com.dataintuitive.luciuscore.Model._
+import com.dataintuitive.luciuscore.GeneAnnotation
 
 /**
   * Created by toni on 19/04/16.
@@ -13,7 +14,7 @@ object GeneDictionaryFunctions extends Serializable {
     return arrayString.flatMap(name => Map(name -> value))
   }
 
-  def createGeneDictionary(genesRdd: Array[Gene]):GeneDictionary =  {
+  def createGeneDictionary(genesRdd: Array[GeneAnnotation]):GeneDictionary =  {
     genesRdd
       .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
       .toMap

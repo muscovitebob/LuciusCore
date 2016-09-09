@@ -1,13 +1,15 @@
 package com.dataintuitive.luciuscore.lowlevel
 
 import com.dataintuitive.luciuscore._
+import com.dataintuitive.luciuscore.utils.SignedString
+import com.dataintuitive.luciuscore.Model._
 
 /**
   * Created by toni on 26/04/16.
   */
 object RankVectorFunctions {
 
-  implicit def stringExtension(string: String) = new GeneString(string)
+  implicit def stringExtension(string: String) = new SignedString(string)
 
   // Convert index-based signatures to rank vectors.
   // We have different signatures, for performance reasons and ease of use
