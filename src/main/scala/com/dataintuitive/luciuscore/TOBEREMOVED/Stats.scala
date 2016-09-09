@@ -1,7 +1,7 @@
 package com.dataintuitive.luciuscore.TOBEREMOVED
 
 import com.dataintuitive.luciuscore._
-import com.dataintuitive.luciuscore.lowlevel.{TransformationFunctions, VectorFunctions, ZhangScoreFunctions}
+import com.dataintuitive.luciuscore.lowlevel.{VectorFunctions, ZhangScoreFunctions}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
