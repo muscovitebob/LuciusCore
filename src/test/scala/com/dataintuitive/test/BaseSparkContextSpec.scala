@@ -1,7 +1,7 @@
 package com.dataintuitive.test
 
 import org.apache.spark.{SparkConf, SparkContext}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Matchers, Spec}
 
 /**
   * @author Thomas Moerman
@@ -21,7 +21,7 @@ object BaseSparkContextSpec {
 
 }
 
-trait BaseSparkContextSpec extends FlatSpec with Matchers {
+trait BaseSparkContextSpec {
 
   lazy val sc = BaseSparkContextSpec.sc
 
