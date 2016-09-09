@@ -46,7 +46,6 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
         assert(extractFeatures(rdd, Seq("col2", "col1"), includeHeader = true).collect === result)
       }
 
-
     }
 
     describe("Edge cases") {
