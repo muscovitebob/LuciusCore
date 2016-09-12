@@ -1,7 +1,7 @@
 package com.dataintuitive.luciuscore.lowlevel
 
 import com.dataintuitive.luciuscore.Model._
-import com.dataintuitive.luciuscore.GeneAnnotation
+import com.dataintuitive.luciuscore.GeneModel._
 
 /**
   * Created by toni on 19/04/16.

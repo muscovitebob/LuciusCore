@@ -1,13 +1,12 @@
 package com.dataintuitive.luciuscore
 
-import com.dataintuitive.test.BaseSparkContextSpec
-import org.apache.spark.{SparkConf, SparkContext}
+import com.dataintuitive.luciuscore.GeneModel._
 import org.scalatest.FlatSpec
 
 /**
   * Created by toni on 22/04/16.
   */
-class GeneTest extends FlatSpec with BaseSparkContextSpec {
+class GeneModelTest extends FlatSpec {
 
   info("Test model for gene annotations")
 
