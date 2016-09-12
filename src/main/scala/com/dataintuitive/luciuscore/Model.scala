@@ -7,6 +7,18 @@ package com.dataintuitive.luciuscore
   */
 object Model extends Serializable {
 
+  // For Vector derivatives: A ValueVector is for t-stats and p-stats
+  type Value = Double
+  type ValueVector = Array[Value]
+
+  // A RankVector contains ranks.
+  type Rank = Double
+  type RankVector = Array[Rank]
+
+  // A GeneVector is an ordered list of Genes (aka signature)
+  type Gene = String
+  type GeneVector = Array[Gene]
+
   type Probesetid = String
   type Symbol = String
 
@@ -18,21 +30,7 @@ object Model extends Serializable {
   val PROBESETID = "probesetid"
   val INDEX = "index"
 
-
-  // For Vector derivatives
-  type Value = Double
-  type ValueVector = Array[Value]
-
-  type Rank = Double
-
-  type Gene = String
-  type RankVector = Array[Double]
-  type GeneVector = Array[String]
-
   type SignatureType = GeneVector
-
-  // A set could be a good way to represent an unordered signature
-  type UnorderedSignature = Set[String]
 
   type Index = Int
 

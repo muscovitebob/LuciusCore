@@ -1,38 +1,41 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
+import com.dataintuitive.luciuscore.utils.Statistics.median
 
 /**
-  * Created by toni on 27/04/16.
+  * Transformations on (collections of) statistics, usually involving both t-stats and p-stats.
+  *
+  * Functionality in this library includes:
+  *
+  * - Aggregating a collection of t-stats (and corresponding p-stats) into one single t-stats vector.
+  *
+  * - Converting a t-stats vector to a rank vector, taking into account zeros and multiple occurrences.
   */
 object TransformationFunctions {
 
-  /* We start with two simplistic approach to calculating a signature.
-   * These approaches do not take into account significance or anything.
-   */
-
-  // Calculate the intersection of a selection of samples/compounds
-  // by calculating the median values of the significant t-stats per features/gene.
-  def valueVectorSelection2ValueVector(selection: Array[Tuple3[String, Array[Double], Array[Double]]], significanceThreshold: Double = 0.05): ValueVector = {
-    selection.
-      flatMap {
-        // Join datasets and add index for genes
+  /**
+    * From a collection of t-stats (and p-stats), calculate the intersection/aggregate in the form of a `ValueVector`.
+    * This is done by calculating the median of the _significant_ t-stats per gene.
+    *
+    * This version takes tuples of length 2: `([t-stats], [p-stats])`.
+    */
+  def aggregateStats(collection: Seq[(Array[Double], Array[Double])], significanceThreshold: Double = 0.05): ValueVector = {
+    collection.
+      flatMap { // Join datasets and add index for genes
         x => {
           val t = x._1
           val p = x._2
           p.zip(t).zipWithIndex.map { case ((p, t), i) => (i, (t, p)) }
         }
       }
-      .groupBy {
-        // Group by gene
+      .groupBy { // Group by gene
         case (i, (t, p)) => i
       }
-      .map {
-        // Select significant t-values, else 0.
+      .map { // Select significant t-values, else 0.
         case (i, a) => (i, a.map { case (j, (t, p)) => if (p < significanceThreshold) t else 0.0 })
       }
-      .map {
-        // Calculate median for the set of significant expressions
+      .map { // Calculate median for the set of significant expressions
         case (i, a) => (i, if (a.min == 0.0) 0.0 else median(a))
       }
       .toArray
@@ -40,19 +43,12 @@ object TransformationFunctions {
       .map(_._2)
   }
 
-  // Calculate median of a sequence of numbers
-  // This is just a helper function
-  def median(l: Seq[Double]): Double = {
-    val lsorted = l.sorted
-    val length = l.size
-    if (length % 2 == 0) (lsorted.apply(length / 2 - 1) + lsorted.apply(length / 2)) * 1.0 / 2 else lsorted.apply(length / 2)
-  }
-
-
-  // An implementation of this function that takes into account zero values.
-  // A better approach to converting a value vector into a rank vector.
-  // Be careful, ranks start at 1 in this implementation!
-  def valueVector2AvgRankVectorWithZeros(tp: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
+  /**
+    * Convert t-stats into a rank vector. Take into account zero values of t-stats.
+    *
+    * Remark: Ranks start at 1.
+    */
+  def stats2RankVector(tp: (Array[Double], Array[Double])): RankVector = {
 
     // Helper function
     def avgUnsignedRank(ranks: RankVector): Double = {
@@ -102,49 +98,5 @@ object TransformationFunctions {
     }
       .toArray
   }
-
-
-  /* The implementations below are left for reference, they are not correct !
-   */
-
-  // A simple approach to convert a value vector into a rank vector
-  // This procedure does not take into account the ordering of equal values
-  @deprecated
-  def valueVector2RankVector(v: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
-    val t = v._1
-    t.zipWithIndex
-      .sortBy(x => Math.abs(x._1))
-      .zipWithIndex
-      .sortBy(_._1._2)
-      .map(x => if (x._1._1 >= 0) x._2 else -x._2)
-      .map(_.toDouble)
-      .toArray
-  }
-
-  // A better approach to converting a value vector into a rank vector.
-  // Still, significance is not taken into account
-  @deprecated
-  def valueVector2AvgRankVector(v: Tuple3[String, Array[Double], Array[Double]]): RankVector = {
-
-    val t = v._1
-
-    // Helper function
-    def avg_unsigned_rank(ranks: RankVector): Double =
-      ranks.foldLeft(0.0)(+_ + _) / ranks.length
-
-    t.zipWithIndex
-      .sortBy(x => Math.abs(x._1))
-      .zipWithIndex
-      .sortBy(_._1._2)
-      .map(x => Map[String, Double]("value" -> x._1._1, "orig_index" -> x._1._2, "unsigned_rank" -> x._2))
-      .groupBy(x => Math.abs(x("value")))
-      .map(_._2)
-      .map(vector => vector.map(x => x ++ Map("avg_unsigned_rank" -> avg_unsigned_rank(vector.map(_ ("unsigned_rank")).toArray))))
-      .flatMap(x => x).toList
-      .sortBy(_ ("orig_index"))
-      .map(x => if (x("value") >= 0) x("avg_unsigned_rank") else -x("avg_unsigned_rank"))
-      .toArray
-  }
-
 
 }
