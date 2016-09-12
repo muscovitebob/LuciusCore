@@ -1,6 +1,6 @@
-package com.dataintuitive.luciuscore.lowlevel
+package com.dataintuitive.luciuscore.io
 
-import com.dataintuitive.luciuscore.lowlevel.ParseFunctions._
+import com.dataintuitive.luciuscore.io.ParseFunctions._
 import com.dataintuitive.test.BaseSparkContextSpec
 import org.scalatest.{FunSpec, Matchers}
 

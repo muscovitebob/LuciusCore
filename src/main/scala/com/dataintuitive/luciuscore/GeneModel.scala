@@ -1,6 +1,5 @@
 package com.dataintuitive.luciuscore
 
-import com.dataintuitive.luciuscore.lowlevel.GeneDictionaryFunctions
 import com.dataintuitive.luciuscore.Model._
 
 object GeneModel extends Serializable {
@@ -27,9 +26,26 @@ object GeneModel extends Serializable {
   class Genes(val genes: Array[GeneAnnotation]) extends Serializable {
 
     /**
+      * The input contains entries with multiple symbol names, separated by `///`.
+      */
+    private def splitGeneAnnotationSymbols(in: String, value: String): Array[(String, String)] = {
+      val arrayString = in.split("///").map(_.trim)
+      return arrayString.flatMap(name => Map(name -> value))
+    }
+
+    /**
+      * Create a dictionary (`GeneDictionary`)
+      */
+    private def createGeneDictionary(genesRdd: Array[GeneAnnotation]):GeneDictionary =  {
+      genesRdd
+        .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
+        .toMap
+    }
+
+    /**
       * Dictionary to translate symbols to probsetids
       */
-    val symbol2ProbesetidDict = GeneDictionaryFunctions.createGeneDictionary(genes)
+    val symbol2ProbesetidDict = createGeneDictionary(genes)
 
     /**
       * Dictionary to translate indices to probesetids.
@@ -50,5 +66,7 @@ object GeneModel extends Serializable {
     val probesetidVector = genes.map(_.probesetid)
 
   }
+
+
 
 }

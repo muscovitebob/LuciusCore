@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore.lowlevel
+package com.dataintuitive.luciuscore.io
 
 import org.apache.spark.rdd.RDD
 

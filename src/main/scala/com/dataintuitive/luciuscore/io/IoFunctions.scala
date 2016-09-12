@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore.lowlevel
+package com.dataintuitive.luciuscore.io
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -9,19 +9,18 @@ import org.apache.spark.rdd.RDD
 object IoFunctions {
 
   def loadTsv(sc: SparkContext,
-                                  sampleCompoundAnnotationsFile: String,
-                                  delimiter: String = "\t"):RDD[Array[String]] = {
+              sampleCompoundAnnotationsFile: String,
+              delimiter: String = "\t"):RDD[Array[String]] = {
 
-    val rawSampleCompoundAnnotationsRdd = sc.textFile(sampleCompoundAnnotationsFile)
+    val rawRdd = sc.textFile(sampleCompoundAnnotationsFile)
     // The column headers are the first row split with the defined delimiter
-    val sampleCompoundFeatures = rawSampleCompoundAnnotationsRdd.first.split(delimiter).drop(1)
+    val header = rawRdd.first.split(delimiter).drop(1)
     // The rest of the data is handled similarly
-    rawSampleCompoundAnnotationsRdd
+    rawRdd
       .zipWithIndex
       .filter(_._2 > 0) // drop first row
       .map(_._1) // index not needed anymore
       .map(_.split(delimiter))
-
   }
 
 }

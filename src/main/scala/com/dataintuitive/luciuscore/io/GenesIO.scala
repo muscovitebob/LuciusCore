@@ -1,7 +1,7 @@
 package com.dataintuitive.luciuscore.io
 
 import com.dataintuitive.luciuscore.GeneModel._
-import com.dataintuitive.luciuscore.lowlevel.ParseFunctions._
+import ParseFunctions._
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
