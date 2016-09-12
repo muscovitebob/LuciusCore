@@ -2,6 +2,8 @@ package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
 import com.dataintuitive.luciuscore.utilities.Statistics.median
+import scala.math.{abs,max}
+import com.dataintuitive.luciuscore.Implicits._
 
 /**
   * Transformations on (collections of) statistics, usually involving both t-stats and p-stats.
