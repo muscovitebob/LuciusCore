@@ -3,7 +3,7 @@ package com.dataintuitive.luciuscore
 /**
   * The types and classes used throughout Lucius.
   *
-  * Be aware: The gene-model is not (yet) included here.
+  * Be aware: The gene-model and signature model are not included here.
   */
 object Model extends Serializable {
 

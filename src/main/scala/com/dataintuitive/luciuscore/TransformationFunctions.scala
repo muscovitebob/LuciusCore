@@ -1,6 +1,7 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
+import com.dataintuitive.luciuscore.SignatureModel._
 import com.dataintuitive.luciuscore.utilities.Statistics.median
 import scala.math.{abs,max}
 import com.dataintuitive.luciuscore.Implicits._

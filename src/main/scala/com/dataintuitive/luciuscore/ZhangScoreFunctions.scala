@@ -1,11 +1,11 @@
-package com.dataintuitive.luciuscore.utilities
+package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
 
 import scala.math.{abs, max}
 
 /**
-  * Created by toni on 26/04/16.
+  * The functions required for calculating the Zhang score (aka Connection score) between two rank vectors.
   */
 object ZhangScoreFunctions {
 

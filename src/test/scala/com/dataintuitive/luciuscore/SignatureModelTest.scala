@@ -4,7 +4,7 @@ import com.dataintuitive.luciuscore.Model._
 import com.dataintuitive.luciuscore.SignatureModel._
 import org.scalatest.{FlatSpec, Matchers}
 
-class SignatureTest extends FlatSpec with Matchers {
+class SignatureModelTest extends FlatSpec with Matchers {
 
   info("Test companion object")
 

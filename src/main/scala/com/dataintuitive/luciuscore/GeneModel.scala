@@ -2,6 +2,9 @@ package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
 
+/**
+  * A model for a gene annotation and a collection of genes.
+  */
 object GeneModel extends Serializable {
 
   /**

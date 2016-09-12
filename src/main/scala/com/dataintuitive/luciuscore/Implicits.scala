@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 
 /**
-  * Created by toni on 23/06/16.
+  * A simple object containing handy implicits when working with L1000 data
   */
 object Implicits extends Serializable {
 
