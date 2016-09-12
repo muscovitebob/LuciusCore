@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore.utils
+package com.dataintuitive.luciuscore.utilities
 
 import org.scalatest.FlatSpec
 

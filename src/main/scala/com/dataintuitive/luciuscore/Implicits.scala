@@ -1,6 +1,6 @@
 package com.dataintuitive.luciuscore
 
-import com.dataintuitive.luciuscore.utils.{PimpedRDD, SignedString}
+import com.dataintuitive.luciuscore.utilities.{PimpedRDD, SignedString}
 import org.apache.spark.rdd.RDD
 
 import scala.reflect.ClassTag

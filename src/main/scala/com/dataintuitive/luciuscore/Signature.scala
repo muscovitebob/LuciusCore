@@ -1,6 +1,6 @@
 package com.dataintuitive.luciuscore
 
-import com.dataintuitive.luciuscore.utils.SignedString
+import com.dataintuitive.luciuscore.utilities.SignedString
 import com.dataintuitive.luciuscore.Model._
 
 /**

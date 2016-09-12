@@ -1,11 +1,11 @@
-package com.dataintuitive.luciuscore.lowlevel
+package com.dataintuitive.luciuscore.utilities
 
 import org.apache.spark.rdd.RDD
 
 /**
   * Created by toni on 20/04/16.
   */
-object VectorFunctions {
+object RddFunctions {
 
   def transpose(rdd:RDD[Array[String]]):RDD[Array[String]] = {
     rdd

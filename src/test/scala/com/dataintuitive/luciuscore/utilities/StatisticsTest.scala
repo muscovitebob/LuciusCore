@@ -1,6 +1,6 @@
-package com.dataintuitive.luciuscore.utils
+package com.dataintuitive.luciuscore.utilities
 
-import com.dataintuitive.luciuscore.utils.Statistics._
+import com.dataintuitive.luciuscore.utilities.Statistics._
 import org.scalatest.{FunSuite, Matchers}
 
 /**

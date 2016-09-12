@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore.utils
+package com.dataintuitive.luciuscore.utilities
 
 /**
   * A helper class to work with signed strings in gene lists and signatures.

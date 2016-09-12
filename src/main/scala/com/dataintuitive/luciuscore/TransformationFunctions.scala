@@ -1,7 +1,7 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.Model._
-import com.dataintuitive.luciuscore.utils.Statistics.median
+import com.dataintuitive.luciuscore.utilities.Statistics.median
 
 /**
   * Transformations on (collections of) statistics, usually involving both t-stats and p-stats.
