@@ -34,7 +34,7 @@ object ParseFunctions extends Serializable {
                         values:Seq[String],
                         includeHeader:Boolean = false
                        ): RDD[(Option[String], Array[Option[String]])] = {
-    val header = rdd.first
+    val header = rdd.first.map(_.trim)
     val keyIndex = header.indexOf(key)
     val valueIndices = values.map(value => header.indexOf(value))
     val selectionRdd = rdd
@@ -59,7 +59,7 @@ object ParseFunctions extends Serializable {
                       features:Seq[String],
                       includeHeader:Boolean = false
                    ): RDD[Array[Option[String]]] = {
-    val header = rdd.first
+    val header = rdd.first.map(_.trim)  // Be on the safe side !
     val featureIndices = features.map(value => header.indexOf(value))
     val selectionRdd = rdd
       .map(row => featureIndices.map(valueIndex => row.lift(valueIndex)).toArray)

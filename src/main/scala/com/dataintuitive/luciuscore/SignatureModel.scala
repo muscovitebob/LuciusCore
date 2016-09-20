@@ -72,7 +72,6 @@ object SignatureModel extends Serializable {
         case _ => println("Wrong signature type, please try again"); SymbolSignature(s)
       }
     }
-
   }
 
   /**

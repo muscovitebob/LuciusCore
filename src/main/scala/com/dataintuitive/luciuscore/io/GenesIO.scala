@@ -30,19 +30,19 @@ object GenesIO {
     * @param sc SparkContext
     * @param geneAnnotationsFile The location of the file
     * @param delimiter The delimiter to use when parsing the input file. Default is `tab`
-    * @param features The feature names (column names in input file) to extract. Default is `Seq("probesetid", "entrezid", "ensemblid", "symbol", "name")`
     * @return `Genes` datastructure (in-memory array of `GeneAnnotation`)
     */
     def loadGenesFromFile(sc: SparkContext,
                geneAnnotationsFile: String,
-               delimiter: String = "\t",
-               features:Seq[String] = Seq("probesetid", "entrezid", "ensemblid", "symbol", "name")): Genes = {
+               delimiter: String = "\t"): Genes = {
 
-      require(features.length == 5, "The length of the features vector needs to 5")
+//      require(features.length == 5, "The length of the features vector needs to 5")
+
+      val featuresToExtract = Seq("probesetid", "entrezid", "ensemblid", "symbol", "name")
 
       val rawGenesRdd = sc.textFile(geneAnnotationsFile).map(_.split(delimiter))
 
-      val splitGenesRdd = extractFeatures(rawGenesRdd, features, includeHeader=false)
+      val splitGenesRdd = extractFeatures(rawGenesRdd, featuresToExtract, includeHeader=false)
 
       // Turn into RDD containing objects
       val genes: RDD[GeneAnnotation] =
