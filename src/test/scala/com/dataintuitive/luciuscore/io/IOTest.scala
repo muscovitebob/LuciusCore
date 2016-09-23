@@ -5,6 +5,7 @@ import com.dataintuitive.test.BaseSparkContextSpec
 import com.dataintuitive.luciuscore.io.StatsIO._
 import com.dataintuitive.luciuscore.io.SampleCompoundRelationsIO._
 import com.dataintuitive.luciuscore.io.CompoundAnnotationsIO._
+import com.dataintuitive.luciuscore.io.RanksIO._
 
 /**
   * This test class tests the whole of the loading and combining functionality. It serves as an example
@@ -70,7 +71,7 @@ class IOTest extends FunSpec with BaseSparkContextSpec with Matchers {
 
     it("Should load the annotations file properly and update the DB") {
 
-      val BRDA00037023 = dbAnnotations.filter(_.pwid.contains("BRD-A00037023"))
+      val BRDA00037023 = dbAnnotations.filter(_.pwid.map(_.contains("BRD-A00037023")).getOrElse(false))
 
       assert(BRDA00037023.map(_.compoundAnnotations.compound.smiles).collect.length === 1)
       assert(BRDA00037023.map(_.compoundAnnotations.compound.smiles).collect.length === 1)
@@ -131,10 +132,25 @@ class IOTest extends FunSpec with BaseSparkContextSpec with Matchers {
   describe("Updating db with stats should work, includes parsing of Doubles") {
 
     it("should parse the results and add it to the DB") {
-      val firstEntry = db.first
+      // Take an entry that contains t-p vectors
+      val firstEntry = db.filter(_.sampleAnnotations.p.isDefined).first
       assert(firstEntry.sampleAnnotations.p.map(_.count(_ != 0.0)) === Some(0))
     }
 
   }
+
+  // Calculate Ranks
+  val dbRanks = updateRanks(db)
+
+  describe("Updating db with ranks should work") {
+
+    it("should update the db with the correct ranks") {
+      // Take an entry that contains t-p vectors
+      val firstEntryA = dbRanks.filter(_.sampleAnnotations.p.isDefined).first
+      assert(firstEntryA.sampleAnnotations.r.map(_.count(_ == 0.0)) === Some(0))
+    }
+
+  }
+
 
 }
