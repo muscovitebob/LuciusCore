@@ -2,7 +2,8 @@ name := "LuciusCore"
 
 version := "1.10.0"
 
-scalaVersion := "2.11.8"
+//scalaVersion := "2.11.8"
+scalaVersion := "2.10.6"
 
 libraryDependencies ++= Seq(
   "org.scalactic"      %% "scalactic"       % "2.2.6"                  ,
