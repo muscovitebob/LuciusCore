@@ -1,15 +1,13 @@
 name := "LuciusCore"
 
-version := "1.10.1"
+version := "1.10.4"
 
-//scalaVersion := "2.11.8"
 scalaVersion := "2.10.6"
 
 libraryDependencies ++= Seq(
-  "org.scalactic"      %% "scalactic"       % "2.2.6"                  ,
-  "org.scalatest"      %% "scalatest"       % "2.2.6"      % "test"    ,
-  "org.apache.spark"   %% "spark-core"      % "1.6.0"      % "provided",
-  "org.scalaz"         %% "scalaz-core"          % "7.2.4"
+  "org.scalactic"      %% "scalactic"       % "3.0.0"                  ,
+  "org.scalatest"      %% "scalatest"       % "3.0.0"      % "test"    ,
+  "org.apache.spark"   %% "spark-core"      % "1.6.2"      % "provided"
 )
 
 scalacOptions ++= Seq("-unchecked", "-deprecation")
