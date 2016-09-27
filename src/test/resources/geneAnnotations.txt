@@ -1,4 +1,4 @@
-probesetid	symbol	entrezid	ensemblid	name
+probesetID	SYMBOL	ENTREZID	ENSEMBL	GENENAME
 200814_at	PSME1			
 222103_at	ATF1			
 201453_x_at	RHEB			

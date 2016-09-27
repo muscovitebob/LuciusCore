@@ -38,7 +38,7 @@ object GenesIO {
 
 //      require(features.length == 5, "The length of the features vector needs to 5")
 
-      val featuresToExtract = Seq("probesetid", "entrezid", "ensemblid", "symbol", "name")
+      val featuresToExtract = Seq("probesetID", "ENTREZID", "ENSEMBL", "SYMBOL", "GENENAME")
 
       val rawGenesRdd = sc.textFile(geneAnnotationsFile).map(_.split(delimiter))
 
