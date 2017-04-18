@@ -10,6 +10,47 @@ import org.apache.spark.rdd.RDD
   */
 object SampleCompoundRelationsIO extends Serializable {
 
+  def parseNA(s: Option[String]):Option[String] = s match {
+    case Some("NA") => None
+    case _ => s
+  }
+
+  /**
+    * Function to load data in V3 format from a file. This is the format used from December 2016 onwards.
+    */
+  def loadSampleCompoundRelationsFromFileV3(sc: SparkContext, fileName: String): RDD[DbRow] = {
+
+    val data = sc.textFile(fileName).map(_.split("\t"))
+
+    val featuresToExtract = Seq("sampleID",      // 0
+                                "JNJS",          // 1
+                                "JNJB",          // 2
+                                "Batch",         // 3
+                                "plateID",       // 4
+                                "well",          // 5
+                                "cellLine",      // 6
+                                "Concentration", // 7
+                                "year",          // 8
+                                "name")          // 9
+
+    extractFeatures(data, features = featuresToExtract, includeHeader = false)
+      .map { r =>
+        // Strip -AAA from the compound jnj number for compatibility
+        val thisCompound = Compound(jnjs = parseNA(r(1)).map(_.stripSuffix("-AAA")),
+                                    name = parseNA(r(9)))
+        val thisSample = Sample(pwid = r(0),
+                                batch = r(3),
+                                plateid = r(4),
+                                well = r(5),
+                                protocolname = r(6),
+                                concentration = r(7),
+                                year = r(8))
+        val thisCompoundAnnotations = CompoundAnnotations(thisCompound)
+        val thisSampleAnnotations = SampleAnnotations(thisSample)
+        DbRow(r(0), thisSampleAnnotations, thisCompoundAnnotations)
+      }.cache
+  }
+
   /**
     * Function to load data in V2 format from a file.
     */
