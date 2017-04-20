@@ -4,19 +4,40 @@ import com.dataintuitive.luciuscore.Model._
 import ParseFunctions._
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import scala.language.postfixOps
 
 /**
   * The code needed to load the data from _disk_.
   */
 object SampleCompoundRelationsIO extends Serializable {
 
-  def parseNA(s: Option[String]):Option[String] = s match {
+  def parseName(s: Option[String]):Option[String] = {
+    val YTGCpattern = "YTGC.*".r
+    s match {
+      case Some("NA") => None
+      case Some(YTGCpattern()) => None
+      case Some("") => None
+      case _ => s
+    }
+  }
+
+  def parseJNJ(s: Option[String]):Option[String] = s match {
     case Some("NA") => None
+    case Some("") => None
     case _ => s
   }
 
+
   /**
     * Function to load data in V3 format from a file. This is the format used from December 2016 onwards.
+    *
+    * Please note that the following modificiations or assumptions are made on ingestion:
+    *  - JNJ numbers may contain suffixes (`-AAA`, `-ACT`, ...) but these are stripped on ingestion
+    *  - `NA` values for JNJ number of compound names are converted to `None`
+    *  - Sometimes, empty values occur as well. Turn those into `None`s.
+    *
+    *  There may still be names in the databases that do not correspond to real compound names,
+    *  but this logic will be tackled later.
     */
   def loadSampleCompoundRelationsFromFileV3(sc: SparkContext, fileName: String): RDD[DbRow] = {
 
@@ -36,8 +57,9 @@ object SampleCompoundRelationsIO extends Serializable {
     extractFeatures(data, features = featuresToExtract, includeHeader = false)
       .map { r =>
         // Strip -AAA from the compound jnj number for compatibility
-        val thisCompound = Compound(jnjs = parseNA(r(1)).map(_.stripSuffix("-AAA")),
-                                    name = parseNA(r(9)))
+        val thisCompound = Compound(jnjs = parseJNJ(r(1)).map(_.split("-").head),
+                                    jnjb = parseJNJ(r(2)),
+                                    name = parseName(r(9)))
         val thisSample = Sample(pwid = r(0),
                                 batch = r(3),
                                 plateid = r(4),
