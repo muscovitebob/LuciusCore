@@ -48,14 +48,10 @@ object CompoundAnnotationsIO extends Serializable {
 
   def ca2DbRow(ca:DbRow, update:(Option[String], Option[String],Option[String],Option[Set[Gene]])) = {
     ca.copy(
-      compoundAnnotations=ca.compoundAnnotations.copy(
-        compound=ca.compoundAnnotations.compound.copy(
-          inchikey=update._2,
-          smiles=update._3
-        )
-      ).copy(
-        knownTargets=update._4
-      )
+      compoundAnnotations=ca.compoundAnnotations.copy(compound=ca.compoundAnnotations.compound.copy(
+                inchikey=update._2,
+                smiles=update._3
+              )).copy(knownTargets=update._4.map(_.toList))
     )
   }
 

@@ -140,7 +140,7 @@ object SampleCompoundRelationsIO extends Serializable {
                                     inchikey = r(10),
                                     ctype = r(12))
         val thisKnownTargets = r(13).map{
-          targetsString => targetsString.split(",").map(_.trim).toSet
+          targetsString => targetsString.split(",").map(_.trim).toList
         }
         val thisSample = Sample(pwid = r(0),
                                 batch = r(3),

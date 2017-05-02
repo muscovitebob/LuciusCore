@@ -28,7 +28,7 @@ class IOTest extends FunSpec with BaseSparkContextSpec with Matchers {
       assert(firstEntry.compoundAnnotations.compound.name === Some("BRD-A00037023"))
       assert(firstEntry.compoundAnnotations.compound.inchikey === Some("inchi-00001"))
       assert(firstEntry.compoundAnnotations.compound.ctype === Some("NA"))
-      assert(firstEntry.compoundAnnotations.knownTargets === Some(Set("PSME1")))
+      assert(firstEntry.compoundAnnotations.knownTargets === Some(List("PSME1")))
       assert(firstEntry.sampleAnnotations.sample.pwid === Some("BRD-A00037023"))
       assert(firstEntry.sampleAnnotations.sample.batch === Some("batch#"))
       assert(firstEntry.sampleAnnotations.sample.well === Some("well#"))
