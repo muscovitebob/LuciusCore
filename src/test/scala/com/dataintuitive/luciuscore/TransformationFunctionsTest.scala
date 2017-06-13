@@ -12,7 +12,7 @@ class TransformationFunctionsTest extends FlatSpec {
 
   info("Test aggregateStats")
 
-  "aggregateStats" should "derive the median values for t-stats for a set of vectors" in {
+  "aggregateStats" should "derive the median values for t-stats for a set of vectors - case 1" in {
     val t1 = Array(-1.0, 1.0, -1.0, 0.0)
     val t2 = Array(-4.0, 2.0, -1.0, 0.0)
     val t3 = Array(-5.0, 3.0, -1.0, 0.0)
@@ -27,6 +27,40 @@ class TransformationFunctionsTest extends FlatSpec {
 
     assert(aggregateStats(selection) === Array(-4.0, 2.0, -1.0, 0.0))
   }
+
+  it should "derive the median values for t-stats for a set of vectors - case 2" in {
+    val t1 = Array(0.0, 1.0, 0.0, 0.0)
+    val t2 = Array(0.0, 2.0, -10.0, 0.0)
+    val t3 = Array(-5.0, 0.0, -4.0, 0.0)
+
+    val p = Array(0.0, 0.0, 0.0, 0.0)
+
+    val selection =
+      Array(
+        (t1, p),
+        (t2, p),
+        (t3, p))
+
+    assert(aggregateStats(selection) === Array(0.0, 0.0, 0.0, 0.0))
+  }
+
+  it should "derive the median values for t-stats for a set of vectors taking into account significance" in {
+    val t1 = Array(4.0, 1.0, 1.0, 1.0)
+    val t2 = Array(1.0, 2.0, -1.0, 2.0)
+    val t3 = Array(-5.0, 2.0, -4.0, 3.0)
+
+    val p1 = Array(0.1, 0.1, 0.1, 0.1)
+    val p2 = Array(0.0, 0.0, 0.0, 0.0)
+
+    val selection =
+      Array(
+        (t1, p1),
+        (t2, p2),
+        (t3, p2))
+
+    assert(aggregateStats(selection) === Array(0.0, 0.0, 0.0, 0.0))
+  }
+
 
   info("Test stats2RankVector")
 

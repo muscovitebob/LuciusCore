@@ -41,7 +41,7 @@ object TransformationFunctions {
         case (i, a) => (i, a.map { case (j, (t, p)) => if (p < significanceThreshold) t else 0.0 })
       }
       .map { // Calculate median for the set of significant expressions
-        case (i, a) => (i, if (a.min == 0.0) 0.0 else median(a))
+        case (i, a) => (i, if (a.map(abs(_)).min == 0.0) 0.0 else median(a))
       }
       .toArray
       .sorted // Make sure the result is sorted again.
