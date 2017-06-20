@@ -51,7 +51,7 @@ object CompoundAnnotationsIO extends Serializable {
       compoundAnnotations=ca.compoundAnnotations.copy(compound=ca.compoundAnnotations.compound.copy(
                 inchikey=update._2,
                 smiles=update._3
-              )).copy(knownTargets=update._4.map(_.toList))
+              )).copy(knownTargets=update._4)
     )
   }
 

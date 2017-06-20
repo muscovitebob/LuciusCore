@@ -24,7 +24,7 @@ object SampleCompoundRelationsIO extends Serializable {
   def parseJNJ(s: Option[String]):Option[String] = s match {
     case Some("NA") => None
     case Some("") => None
-    case _ => s
+    case _ => s.map(_.split("-").head)   // Strip -AAA and other suffixes
   }
 
 
@@ -56,10 +56,14 @@ object SampleCompoundRelationsIO extends Serializable {
 
     extractFeatures(data, features = featuresToExtract, includeHeader = false)
       .map { r =>
-        // Strip -AAA from the compound jnj number for compatibility
-        val thisCompound = Compound(jnjs = parseJNJ(r(1)).map(_.split("-").head),
-                                    jnjb = parseJNJ(r(2)),
-                                    name = parseName(r(9)))
+        val _jnjs = parseJNJ(r(1))
+        val _jnjb = parseJNJ(r(2))
+        val _name = parseName(r(9))
+        // Avoid that experiment names are used as compound name: either jnjs OR name is used
+        val thisCompound = (_jnjs, _name) match {
+          case (None, _) => Compound(jnjs = None, jnjb = None, name = _name)
+          case (_, _) => Compound(jnjs = _jnjs, jnjb = _jnjb, name = None)
+        }
         val thisSample = Sample(pwid = r(0),
                                 batch = r(3),
                                 plateid = r(4),
@@ -140,7 +144,7 @@ object SampleCompoundRelationsIO extends Serializable {
                                     inchikey = r(10),
                                     ctype = r(12))
         val thisKnownTargets = r(13).map{
-          targetsString => targetsString.split(",").map(_.trim).toList
+          targetsString => targetsString.split(",").map(_.trim).toSet
         }
         val thisSample = Sample(pwid = r(0),
                                 batch = r(3),

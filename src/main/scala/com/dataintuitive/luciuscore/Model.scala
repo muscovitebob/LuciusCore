@@ -83,16 +83,16 @@ object Model extends Serializable {
 
   case class CompoundAnnotations(
                        val compound: Compound,
-                       val knownTargets: Option[List[Gene]] = None,
-                       val predictedTargets: Option[List[Gene]] = None
+                       val knownTargets: Option[Set[Gene]] = None,
+                       val predictedTargets: Option[Set[Gene]] = None
                       ) extends Serializable {
 
     // Convenience method: usually jnjs is used as identifier
     def jnj = compound.jnjs
 
     // Map None to empty set as part of the high-level API
-    def getKnownTargets = knownTargets.getOrElse(List())
-    def getPredictedTargets = predictedTargets.getOrElse(List())
+    def getKnownTargets = knownTargets.getOrElse(Set())
+    def getPredictedTargets = predictedTargets.getOrElse(Set())
     def knownTargetsDefined = knownTargets.isDefined
     def predictedTargetsDefined = predictedTargets.isDefined
 
