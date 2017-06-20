@@ -3,6 +3,9 @@
      "name": "luciuscore",
      "repo": "maven",
      "subject": "tverbeiren" 
+  },
+  "version": {
+     "name": "2.1.2"
   }
 }
 
