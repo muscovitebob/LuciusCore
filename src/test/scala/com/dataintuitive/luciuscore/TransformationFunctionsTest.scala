@@ -99,7 +99,8 @@ class TransformationFunctionsTest extends FlatSpec {
   info("Test the functions for dealing with vectors")
 
   val indexSignature = new IndexSignature(Array("1", "-3"))
-  val rankVector = signature2OrderedRankVector(indexSignature, 3)
+  val rankVector = signature2OrderedRankVector(indexSignature, 3) // Array(2.0, 0.0, -1.0)
+  val rankVector2 = Array(-1.0, 0.0, 2.0)
 
   "An IndexGeneSignature" should "convert to a dense vector of given length" in {
     assert(rankVector === Array(2.0, 0.0, -1.0))
@@ -121,5 +122,8 @@ class TransformationFunctionsTest extends FlatSpec {
     assert(rankVector2IndexSignature(rankVector).signature === Array("1", "-3"))
   }
 
+  it should "convert to a sparse signature in different order" in {
+    assert(rankVector2IndexSignature(rankVector2).signature === Array("3", "-1"))
+  }
 
 }

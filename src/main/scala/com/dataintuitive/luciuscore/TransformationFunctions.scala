@@ -154,11 +154,17 @@ object TransformationFunctions {
   // Convert rank vector to index signature
   // This is the poor man's approach, not taking into account duplicate entries and such.
   // Be careful, signature and vector indices are 1-based
+  // Bug correction: The order of the resulting signature was wrong !!!
   def rankVector2IndexSignature(v: RankVector): IndexSignature = {
     val nonzero = nonZeroElements(v)
-    val asArrayInt = nonzero.map {
-      case (unsignedIndex, signedRank) => ((signedRank.abs / signedRank) * unsignedIndex).toInt
-    }
+    val asArrayInt =
+      nonzero
+        .sortBy{
+          case (unsignedIndex, signedRank) => -signedRank.abs
+        }
+        .map {
+          case (unsignedIndex, signedRank) => ((signedRank.abs / signedRank) * unsignedIndex).toInt
+        }
     val asArrayString = asArrayInt.map(_.toString)
     new IndexSignature(asArrayString)
   }
