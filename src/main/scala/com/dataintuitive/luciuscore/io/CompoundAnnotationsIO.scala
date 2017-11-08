@@ -34,19 +34,19 @@ object CompoundAnnotationsIO extends Serializable {
         val inchikey = l.head(1)
         val smiles = l.head(2)
         // Targets are not necessarily filled in, filter the empty ones out
-        val targets = l.flatMap(x => x(3)).toSet
+        val targets = l.flatMap(x => x(3)).toSeq.distinct
         // Return quadrupals
         (jnjs, inchikey, smiles, Some(targets))
       }
   }
 
-  def updateCompoundAnnotationsV2(normalizedCAs:org.apache.spark.rdd.RDD[(Option[String], Option[String], Option[String], Some[Set[String]])], db:RDD[DbRow]):RDD[DbRow] = {
+  def updateCompoundAnnotationsV2(normalizedCAs:org.apache.spark.rdd.RDD[(Option[String], Option[String], Option[String], Some[Seq[String]])], db:RDD[DbRow]):RDD[DbRow] = {
 
     joinUpdateRDD(normalizedCAs.keyBy(caKeyFunction), ca2DbRow)(db.keyBy(dbKeyFunction)).values
 
   }
 
-  def ca2DbRow(ca:DbRow, update:(Option[String], Option[String],Option[String],Option[Set[Gene]])) = {
+  def ca2DbRow(ca:DbRow, update:(Option[String], Option[String],Option[String],Option[Seq[Gene]])) = {
     ca.copy(
       compoundAnnotations=ca.compoundAnnotations.copy(compound=ca.compoundAnnotations.compound.copy(
                 inchikey=update._2,
@@ -56,7 +56,7 @@ object CompoundAnnotationsIO extends Serializable {
   }
 
   // Key for compound ID in DB
-  def caKeyFunction(x:(Option[String], Option[String],Option[String],Option[Set[Gene]])):Option[String] = x._1
+  def caKeyFunction(x:(Option[String], Option[String],Option[String],Option[Seq[Gene]])):Option[String] = x._1
   // Key for compound ID in new data to be joined
   def dbKeyFunction(x:DbRow):Option[String] = x.compoundAnnotations.compound.jnjs
 
