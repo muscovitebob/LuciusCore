@@ -10,12 +10,20 @@ object DbFunctions {
     * @param queries Rank vector(s)
     * @return Map, with DbRows' pwid as the key an a list of length(queries) as the value
     */
-  def queryDbRow(x: DbRow,
-                 queries: Array[Double]*): Map[Option[String], Seq[Option[Double]]] = {
+  def queryDbRowPwid(x: DbRow,
+                     queries: Array[Double]*): Map[Option[String], Seq[Option[Double]]] = {
     x.sampleAnnotations.r match {
       case Some(r) => Map(x.pwid ->
         queries.map(query => Option(connectionScore(r, query))))
       case _       => Map(None -> List(None))
+    }
+  }
+
+  def queryDbRow(x: DbRow,
+                     queries: Array[Double]*): Option[(DbRow, Seq[Double])] = {
+    x.sampleAnnotations.r match {
+      case Some(r) => Some(x, queries.map(query => connectionScore(r, query)))
+      case _       => None
     }
   }
 
