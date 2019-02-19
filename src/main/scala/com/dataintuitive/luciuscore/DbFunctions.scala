@@ -19,6 +19,12 @@ object DbFunctions {
     }
   }
 
+  /**
+    * Score an arbitrary number of rank vectors against a database entry.
+    * @param x DbRow
+    * @param queries Rank vector(s)
+    * @return List of Option-wrapped tuples (DbRow, Seq(scores))
+    */
   def queryDbRow(x: DbRow,
                      queries: Array[Double]*): Option[(DbRow, Seq[Double])] = {
     x.sampleAnnotations.r match {
