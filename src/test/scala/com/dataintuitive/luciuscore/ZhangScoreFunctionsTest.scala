@@ -49,4 +49,10 @@ class ZhangScoreFunctionsTest extends FlatSpec with BaseSparkContextSpec {
     assert(queryDbRow(newDbRow, x).values.toSeq.head.head.get.isInstanceOf[Double] === true)
   }
 
+  it should "give a list of size two for two queries" in {
+    val x: RankVector = Array.fill(4){scala.util.Random.nextInt(10).asInstanceOf[Double]}
+    val y: RankVector = Array.fill(4){scala.util.Random.nextInt(10).asInstanceOf[Double]}
+    assert(queryDbRow(newDbRow, x, y).values.toSeq.head.size === 2)
+  }
+
 }
