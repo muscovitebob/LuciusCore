@@ -19,6 +19,8 @@ object Model extends Serializable {
   type Gene = String
   type GeneVector = Array[Gene]
 
+  // a Probesetid is the unique identifier for a single microarray site
+  // a symbol is the unique uniprot gene symbol
   type Probesetid = String
   type Symbol = String
 

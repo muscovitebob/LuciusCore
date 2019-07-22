@@ -14,7 +14,8 @@ class GeneModelTest extends FlatSpec {
     "entrezidString",
     "ensemblidString",
     "symbolString",
-    "nameString")
+    "nameString"
+    )
 
   "methods on a gene" should "return the method field" in {
     assert(gene.name === "nameString")
