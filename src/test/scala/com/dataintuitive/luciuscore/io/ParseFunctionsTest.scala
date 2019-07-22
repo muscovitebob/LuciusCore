@@ -14,7 +14,6 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
     Array("1",    "2",    "3"   ),
     Array("4",    "5",    "6"   )
   )
-
   val rdd = sc.parallelize(arr)
 
   describe("extractFeatures") {
@@ -26,7 +25,7 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
           Array(Some("1"), Some("2")),
           Array(Some("4"), Some("5"))
         )
-        assert(extractFeatures(arr, Seq("col1", "col2")).collect === result)
+        assert(extractFeatures(rdd, Seq("col1", "col2")).collect === result)
       }
 
       it("should include header when asked to") {
@@ -35,7 +34,7 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
           Array(Some("1"), Some("2")),
           Array(Some("4"), Some("5"))
         )
-        assert(extractFeatures(arr, Seq("col1", "col2"), includeHeader = true).collect === result)
+        assert(extractFeatures(rdd, Seq("col1", "col2"), includeHeader = true).collect === result)
       }
 
       it("should preserve the order of features provided") {
@@ -44,7 +43,7 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
           Array(Some("2"), Some("1")),
           Array(Some("5"), Some("4"))
         )
-        assert(extractFeatures(arr, Seq("col2", "col1"), includeHeader = true).collect === result)
+        assert(extractFeatures(rdd, Seq("col2", "col1"), includeHeader = true).collect === result)
       }
 
     }
@@ -53,15 +52,15 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
 
       it("should cope with 1 feature") {
 
-        extractFeatures(arr, Seq("col1")).collect should equal (Array(Array(Some("1")), Array(Some("4"))))
+        extractFeatures(rdd, Seq("col1")).collect should equal (Array(Array(Some("1")), Array(Some("4"))))
 
       }
 
       it("should cope with empty features") {
 
-        extractFeatures(arr, Seq()).collect should equal (Array(Array(), Array()))
-        extractFeatures(arr, Seq()).collect should have size (arr.count - 1)
-        extractFeatures(arr, Seq(), includeHeader=true).collect should have size (arr.count)
+        extractFeatures(rdd, Seq()).collect should equal (Array(Array(), Array()))
+        extractFeatures(rdd, Seq()).collect should have size (rdd.count - 1)
+        extractFeatures(rdd, Seq(), includeHeader=true).collect should have size (rdd.count)
 
       }
 
@@ -70,7 +69,7 @@ class ParseFunctionsTest extends FunSpec with BaseSparkContextSpec with Matchers
           Array(Some("1"), None),
           Array(Some("4"), None)
         )
-        extractFeatures(arr, Seq("col1", "wrong")).collect should equal (result)
+        extractFeatures(rdd, Seq("col1", "wrong")).collect should equal (result)
       }
 
     }

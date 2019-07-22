@@ -55,39 +55,14 @@ object ParseFunctions extends Serializable {
     * @param includeHeader Add the header row to the resulting `RDD`? Default is `false`.
     * @return `RDD` of key the selected columns/features.
     */
-  def extractFeatures(rdd: RDD[Array[String]],
-                      features: Seq[String],
-                      includeHeader: Boolean = false
+  def extractFeatures(rdd:RDD[Array[String]],
+                      features:Seq[String],
+                      includeHeader:Boolean = false
                    ): RDD[Array[Option[String]]] = {
-    val featureIndices = extractFeatureIndices(rdd, features)
-    val selectionRdd = rdd
-      .map(row => featureIndices.map{
-        valueIndex =>
-          if (featureIndices.contains(valueIndex)) row.lift(valueIndex)
-          else None
-      }.toArray)
-    if (!includeHeader)
-      selectionRdd.zipWithIndex.filter(_._2 > 0).keys
-    else
-      selectionRdd
-  }
-
-  def extractFeatureIndices(rdd: RDD[Array[String]], features: Seq[String]): Seq[Int] = {
     val header = rdd.first.map(_.trim)  // Be on the safe side !
-    features.map(value => header.indexOf(value))
-  }
-
-  def extractFeaturesLocal(array: Array[Array[String]],
-                      features: Seq[String],
-                      includeHeader: Boolean = false
-                     ): RDD[Array[Option[String]]] = {
-    val featureIndices = extractFeatureIndices(rdd, features)
+    val featureIndices = features.map(value => header.indexOf(value))
     val selectionRdd = rdd
-      .map(row => featureIndices.map{
-        valueIndex =>
-          if (featureIndices.contains(valueIndex)) row.lift(valueIndex)
-          else None
-      }.toArray)
+      .map(row => featureIndices.map(valueIndex => row.lift(valueIndex)).toArray)
     if (!includeHeader)
       selectionRdd.zipWithIndex.filter(_._2 > 0).keys
     else

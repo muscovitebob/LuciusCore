@@ -10,26 +10,14 @@ object GeneModel extends Serializable {
   /**
     * Class for holding information about a gene.
     */
-  class GeneAnnotation(val probesetid: Option[Probesetid],
-                        val datatype: Option[String],
-                        val entrezid: Option[String],
-                        val ensemblid: Option[String],
-                        val symbol: Option[Symbol],
-                        val name: Option[String],
-                        val family: Option[String]) extends Serializable {
+  class GeneAnnotation(
+                        val probesetid: Probesetid,
+                        val entrezid: String,
+                        val ensemblid: String,
+                        val symbol: Symbol,
+                        val name: String) extends Serializable {
 
-      def this(probesetid: Probesetid, datatype: String, entrezid: String, ensemblid: String,
-        symbol: Symbol, name: String, family: String) {
-        this(Option(probesetid), Option(datatype), Option(entrezid), Option(ensemblid), Option(symbol), Option(name),
-          Option(family))
-      }
-
-      def this(probesetid: Probesetid, entrezid: String, ensemblid: String, symbol: String, name: String) {
-        this(Option(probesetid), None, Option(entrezid), Option(ensemblid), Option(symbol), Option(name), None)
-      }
-
-    override def toString: String = s"${probesetid} (entrezid = ${entrezid}, datatype = ${datatype} " +
-      s"ensemblid = ${ensemblid}, symbol = ${symbol}, name = ${name}, family = ${family})"
+    override def toString = s"${probesetid} (entrezid = ${entrezid}, ensemblid = ${ensemblid}, symbol = ${symbol}, name = ${name})"
 
   }
 
@@ -53,7 +41,7 @@ object GeneModel extends Serializable {
       */
     private def createGeneDictionary(genesRdd: Array[GeneAnnotation]):GeneDictionary =  {
       genesRdd
-        .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol.get, ga.probesetid.get))
+        .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
         .toMap
     }
 
@@ -69,7 +57,7 @@ object GeneModel extends Serializable {
       */
     val index2ProbesetidDict: Map[Int, Probesetid] =
     genes
-      .map(_.probesetid.get)
+      .map(_.probesetid)
       .zipWithIndex
       .map(tuple => (tuple._1, tuple._2 + 1))
       .map(_.swap)

@@ -30,41 +30,33 @@ object GenesIO {
     * @param sc SparkContext
     * @param geneAnnotationsFile The location of the file
     * @param delimiter The delimiter to use when parsing the input file. Default is `tab`
-    * @param notAvailable The character used to indicate an empty record in parsed file. Defaults to nothing, other
-    *                     frequent possibility is
     * @return `Genes` datastructure (in-memory array of `GeneAnnotation`)
     */
     def loadGenesFromFile(sc: SparkContext,
                geneAnnotationsFile: String,
-               delimiter: String = "\t", notAvailable: String = ""): Genes = {
+               delimiter: String = "\t"): Genes = {
 
 //      require(features.length == 5, "The length of the features vector needs to 5")
 
       val featuresToExtract = Seq("probesetID", "ENTREZID", "ENSEMBL", "SYMBOL", "GENENAME")
 
-      // gene annotation files are mbs maximum, no need to carry on using RDD after using textFile
-      val rawGenes: Array[Array[String]] = sc.textFile(geneAnnotationsFile).map(_.split(delimiter)).collect
+      val rawGenesRdd = sc.textFile(geneAnnotationsFile).map(_.split(delimiter))
 
-      val featureIndices = extractFeatureIndices(rawGenes, featuresToExtract)
-
-      val splitGenesRdd: Array[Array[Option[String]]] =
-        extractFeatures(rawGenes, featuresToExtract, includeHeader=false)
-
+      val splitGenesRdd = extractFeatures(rawGenesRdd, featuresToExtract, includeHeader=false)
 
       // Turn into RDD containing objects
-      val genes: Array[GeneAnnotation] =
-        splitGenesRdd.map(row => new GeneAnnotation(
-          probesetid = row(0),
-          datatype = row(1),
-          entrezid = row(2),
-          ensemblid = row(3),
-          symbol = row(4),
-          name = row(5),
-          family = row(6))
+      val genes: RDD[GeneAnnotation] =
+        splitGenesRdd.map(x => new GeneAnnotation(
+          x(0).getOrElse("NA"),
+          x(1).getOrElse("NA"),
+          x(2).getOrElse("NA"),
+          x(3).getOrElse("NA"),
+          x(4).getOrElse("NA"))
         )
 
+      val asArray: Array[GeneAnnotation] = genes.collect()
 
-      new Genes(genes)
+      new Genes(asArray)
   }
 
 }
