@@ -21,6 +21,7 @@ object GeneModel extends Serializable {
 
   }
 
+
   /**
     * Convenience class for holding an `Array` of `Gene` with some values/methods to make life easier.
     *
@@ -70,6 +71,30 @@ object GeneModel extends Serializable {
 
   }
 
+  /**
+    * Annotation format to process the new 22K gene format, with inferred genes.
+    * @param probesetid
+    * @param dataType
+    * @param entrezid
+    * @param ensemblid
+    * @param symbol
+    * @param name
+    * @param geneFamily
+    */
+  class GeneAnnotationV2(
+                          val probesetid: Probesetid,
+                          val dataType: String,
+                          val entrezid: Option[String],
+                          val ensemblid: Option[String],
+                          val symbol: Option[Symbol],
+                          val name: Option[String],
+                          val geneFamily: Option[String]) extends Serializable {
+
+    override def toString = s"${probesetid} " +
+      s"(entrezid = ${entrezid}, dataType = ${dataType}, ensemblid = ${ensemblid.get}, symbol = ${symbol.get}, " +
+      s"name = ${name.get}, geneFamily=${geneFamily.get})"
+
+  }
 
 
 }

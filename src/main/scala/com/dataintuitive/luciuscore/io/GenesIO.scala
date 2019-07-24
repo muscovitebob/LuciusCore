@@ -57,6 +57,10 @@ object GenesIO {
       val asArray: Array[GeneAnnotation] = genes.collect()
 
       new Genes(asArray)
-  }
+    }
+
+    def loadGenesFromFileV2(sc: SparkContext,
+                            geneAnnotationsFile: String,
+                            delimiter: String = "\t"): Genes
 
 }
