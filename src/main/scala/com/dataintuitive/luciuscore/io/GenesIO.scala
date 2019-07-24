@@ -69,7 +69,8 @@ object GenesIO {
       val splitGenesRdd = extractFeatures(rawGenesRdd, featuresToExtract, includeHeader=false)
 
       val genesRddFormatted = splitGenesRdd.map(row => row.map{element =>
-        if (isNotProvided(element)) None
+        if (element.isEmpty) None
+        else if (isNotProvided(element)) None
         else Some(element.get)
       })
       val genes: RDD[GeneAnnotationV2] = genesRddFormatted.map(row => new GeneAnnotationV2(row(0).get, row(1).get,

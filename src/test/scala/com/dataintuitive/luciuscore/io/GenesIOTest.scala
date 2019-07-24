@@ -35,5 +35,21 @@ class GenesIOTest extends FlatSpec with BaseSparkContextSpec with Matchers {
     assert(genesWithMissingFeatures.genes(0).ensemblid === "NA")
   }
 
+  info("Test gene annotation loading in V2 format")
+
+  val genesV2 = loadGenesFromFileV2(sc, "src/test/resources/geneAnnotationsV2.txt")
+
+  "Loading V2 gene data" should "work" in {
+    assert(genesV2.genes(0).symbol.get == "PSME1")
+  }
+
+  "Loading V2 gene data" should "generate None for '---' fields" in {
+    assert(genesV2.genes(0).entrezid == None)
+  }
+
+  "Loading V2 gene data" should "generate None for empty fields" in {
+    assert(genesV2.genes(0).geneFamily == None)
+  }
+
 }
 
