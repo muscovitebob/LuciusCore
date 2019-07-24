@@ -90,6 +90,16 @@ object GeneModel extends Serializable {
                           val name: Option[String],
                           val geneFamily: Option[String]) extends Serializable {
 
+    def this(probesetid: Probesetid, dataType: String,
+      entrezid: String,
+      ensemblid: String,
+      symbol: String,
+      name: String,
+      geneFamily: String) {
+        this(probesetid, dataType, Some(entrezid), Some(ensemblid), Some(symbol), Some(name),
+      Some(geneFamily))
+    }
+
     override def toString = s"${probesetid} " +
       s"(entrezid = ${entrezid}, dataType = ${dataType}, ensemblid = ${ensemblid.get}, symbol = ${symbol.get}, " +
       s"name = ${name.get}, geneFamily=${geneFamily.get})"

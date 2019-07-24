@@ -24,6 +24,26 @@ class GeneModelTest extends FlatSpec {
     assert(gene.probesetid === "probesetidString")
   }
 
+  info("Test model for gene annotations V2")
+
+  val geneV2: GeneAnnotationV2 = new GeneAnnotationV2("probesetidString",
+    "LM",
+    "entrezidString",
+    "ensemblidString",
+    "symbolString",
+    "nameString",
+    "familyString")
+
+  "methods on a gene of V2" should "return the method field" in {
+    assert(geneV2.name.get === "nameString")
+    assert(geneV2.symbol.get === "symbolString")
+    assert(geneV2.ensemblid.get === "ensemblidString")
+    assert(geneV2.entrezid.get === "entrezidString")
+    assert(geneV2.probesetid === "probesetidString")
+    assert(geneV2.geneFamily.get === "familyString")
+    assert(geneV2.dataType === "LM")
+  }
+
 
 }
 
