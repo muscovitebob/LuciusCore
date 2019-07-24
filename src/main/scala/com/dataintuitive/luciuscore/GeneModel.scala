@@ -101,8 +101,8 @@ object GeneModel extends Serializable {
     }
 
     override def toString = s"${probesetid} " +
-      s"(entrezid = ${entrezid}, dataType = ${dataType}, ensemblid = ${ensemblid.get}, symbol = ${symbol.get}, " +
-      s"name = ${name.get}, geneFamily=${geneFamily.get})"
+      s"(entrezid = ${entrezid}, dataType = ${dataType}, ensemblid = ${ensemblid.getOrElse("NA")}, symbol = ${symbol.getOrElse("NA")}, " +
+      s"name = ${name.getOrElse("NA")}, geneFamily=${geneFamily.getOrElse("NA")}"
 
   }
 
