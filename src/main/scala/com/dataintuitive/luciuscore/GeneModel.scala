@@ -40,7 +40,7 @@ object GeneModel extends Serializable {
     /**
       * Create a dictionary (`GeneDictionary`)
       */
-    private def createGeneDictionary(genesRdd: Array[GeneAnnotation]):GeneDictionary =  {
+    private def createGeneDictionary(genesRdd: Array[GeneAnnotation]): GeneDictionary =  {
       genesRdd
         .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
         .toMap
@@ -96,5 +96,45 @@ object GeneModel extends Serializable {
 
   }
 
+  class GenesV2(val genes: Array[GeneAnnotationV2]) extends Serializable {
+
+    private def splitGeneAnnotationSymbols(symbol: Option[String],
+                                           probesetid: String): Array[(Option[String], String)] = symbol match {
+      case Some(name) => {
+        val arrayString = name.split("///").map(_.trim)
+        arrayString.flatMap(name => Map(Some(name) -> probesetid))
+      }
+      case None => Array((None -> probesetid))
+    }
+
+    private def createGeneDictionary(genes: Array[GeneAnnotationV2]): GeneDictionaryV2 = {
+      genes.flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
+        .groupBy(_._1).map(intermediate => intermediate._1 -> intermediate._2.map(_._2))
+    }
+
+    private def createInverseGeneDictionary(dict: GeneDictionaryV2): InverseGeneDictionaryV2 = {
+      dict.toList.map(_.swap).flatMap{ element =>
+        if (element._1.length > 1) element._1.flatMap(probesetid => Array((probesetid, element._2)))
+        else Array((element._1.head, element._2))
+      }.toMap
+    }
+
+    val symbol2ProbesetidDict = createGeneDictionary(genes)
+
+    val probesetid2SymbolDict = createInverseGeneDictionary(symbol2ProbesetidDict)
+
+    val index2ProbesetidDict: Map[Int, Probesetid] =
+      genes
+        .map(_.probesetid)
+        .zipWithIndex
+        .map(tuple => (tuple._1, tuple._2 + 1))
+        .map(_.swap)
+        .toMap
+
+    val probesetidVector = genes.map(_.probesetid)
+
+
+
+  }
 
 }

@@ -25,6 +25,9 @@ object Model extends Serializable {
   type GeneDictionary = Map[Symbol, Probesetid]
   type InverseGeneDictionary = Map[Probesetid,Symbol]
 
+  type GeneDictionaryV2 = Map[Option[Symbol], Array[Probesetid]]
+  type InverseGeneDictionaryV2 = Map[Probesetid, Option[Symbol]]
+
   type NotationType = String
   val SYMBOL = "symbol"
   val PROBESETID = "probesetid"
