@@ -73,13 +73,13 @@ object GeneModel extends Serializable {
 
   /**
     * Annotation format to process the new 22K gene format, with inferred genes.
-    * @param probesetid
-    * @param dataType
+    * @param probesetid probeset ID from microarray (a row)
+    * @param dataType is the probeset predicted? either LM or INF (inferred)
     * @param entrezid
     * @param ensemblid
-    * @param symbol
-    * @param name
-    * @param geneFamily
+    * @param symbol uniprot gene symbol
+    * @param name full name
+    * @param geneFamily gene family descriptor (e.g. Kinases)
     */
   class GeneAnnotationV2(
                           val probesetid: Probesetid,
@@ -108,17 +108,19 @@ object GeneModel extends Serializable {
 
   class GenesV2(val genes: Array[GeneAnnotationV2]) extends Serializable {
 
-    private def splitGeneAnnotationSymbols(symbol: Option[String],
-                                           probesetid: String): Array[(Option[String], String)] = symbol match {
+    private def splitRecord(record: String): Array[String] = record.split("///").map(_.trim)
+
+    private def splitAndAttach(maybeString: Option[String],
+                                  otherString: String): Array[(Option[String], String)] = maybeString match {
       case Some(name) => {
-        val arrayString = name.split("///").map(_.trim)
-        arrayString.flatMap(name => Map(Some(name) -> probesetid))
+        val arrayString = splitRecord(name)
+        arrayString.flatMap(name => Map(Some(name) -> otherString))
       }
-      case None => Array((None -> probesetid))
+      case None => Array((None -> otherString))
     }
 
     private def createGeneDictionary(genes: Array[GeneAnnotationV2]): GeneDictionaryV2 = {
-      genes.flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
+      genes.flatMap(ga => splitAndAttach(ga.symbol, ga.probesetid))
         .groupBy(_._1).map(intermediate => intermediate._1 -> intermediate._2.map(_._2))
     }
 
