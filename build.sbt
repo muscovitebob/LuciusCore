@@ -1,15 +1,14 @@
 name := "LuciusCore"
 
-version := "3.1.0"
+version := "test.3"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.12"
 
 // crossScalaVersions := Seq("2.10.6", "2.11.8")
 
 libraryDependencies ++= Seq(
-  ("org.scalactic"      %% "scalactic"       % "3.0.7")
-    .exclude("org.scala-lang", "scala-reflect"),
-  "org.scalatest"      %% "scalatest"       % "3.0.7"      % "test",
+  "org.scalactic"      %% "scalactic"       % "3.0.8",
+  "org.scalatest"      %% "scalatest"       % "3.0.8"      % "test",
   "org.apache.spark"   %% "spark-core"      % "2.4.0"      % "provided"
 )
 
