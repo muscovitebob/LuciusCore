@@ -136,6 +136,8 @@ object GeneModel extends Serializable {
 
     val probesetid2SymbolDict = createInverseGeneDictionary(symbol2ProbesetidDict)
 
+
+    // 1-based indexing
     val index2ProbesetidDict: Map[Int, Probesetid] =
       genes
         .map(_.probesetid)
