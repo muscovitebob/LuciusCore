@@ -1,5 +1,6 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.Bing.GeneType.GeneType
 import com.dataintuitive.luciuscore.Model._
 
 /**
@@ -74,40 +75,36 @@ object GeneModel extends Serializable {
   /**
     * Annotation format to process a fully inferred genome, created using the Subramanian Connectivity Map 2017 OLS model.
     * @param probesetid probeset ID from microarray (a row)
-    * @param dataType is the probeset predicted? either LM or INF (inferred)
+    * @param dataType is the probeset predicted? either a landmark gene, best inferred gene, or merely inferred
     * @param entrezid
     * @param ensemblid
     * @param symbol uniprot gene symbol
     * @param name full name
     * @param geneFamily gene family descriptor (e.g. Kinases)
-    * @param BING is this gene one of the Best Inferred Genes?
     */
   class GeneAnnotationV2(
                           val probesetid: Probesetid,
-                          val dataType: String,
+                          val dataType: GeneType,
                           val entrezid: Option[String],
                           val ensemblid: Option[String],
                           val symbol: Option[Symbol],
                           val name: Option[String],
-                          val geneFamily: Option[String],
-                          val BING: Option[Boolean]) extends Serializable {
+                          val geneFamily: Option[String]) extends Serializable {
 
-    def this(probesetid: Probesetid, dataType: String,
+    def this(probesetid: Probesetid, dataType: GeneType,
       entrezid: String,
       ensemblid: String,
       symbol: String,
       name: String,
-      geneFamily: String,
-             BING: Boolean) {
+      geneFamily: String) {
         this(probesetid, dataType, Some(entrezid), Some(ensemblid), Some(symbol), Some(name),
-      Some(geneFamily), Some(BING))
+      Some(geneFamily))
     }
 
     override def toString = s"ProbesetID: ${probesetid}: " +
       s"(entrezid = ${entrezid.getOrElse("NA")}, dataType = ${dataType}, ensemblid = ${ensemblid.getOrElse("NA")}," +
       s" symbol = ${symbol.getOrElse("NA")}," +
-      s" name = ${name.getOrElse("NA")}, geneFamily=${geneFamily.getOrElse("NA")}," +
-      s" BING = ${BING.getOrElse("NA")}"
+      s" name = ${name.getOrElse("NA")}, geneFamily=${geneFamily.getOrElse("NA")}"
 
   }
 

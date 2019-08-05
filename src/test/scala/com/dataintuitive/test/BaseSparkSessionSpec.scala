@@ -3,7 +3,7 @@ package com.dataintuitive.test
 import org.apache.spark.sql.SparkSession
 
 object BaseSparkSessionSpec {
-  lazy val spark = SparkSession.builder.master("local[*]").appName("TestWithSQL").getOrCreate
+  lazy val spark = SparkSession.builder.master("local[*]").appName("Test").getOrCreate
 }
 
 trait BaseSparkSessionSpec {

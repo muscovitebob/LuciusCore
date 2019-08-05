@@ -1,6 +1,8 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.Bing.GeneType
 import com.dataintuitive.luciuscore.GeneModel._
+import com.dataintuitive.luciuscore.Bing.GeneType.GeneType
 import org.scalatest.FlatSpec
 
 /**
@@ -27,13 +29,12 @@ class GeneModelTest extends FlatSpec {
   info("Test model for gene annotations V2")
 
   val geneV2: GeneAnnotationV2 = new GeneAnnotationV2("probesetidString",
-    "LM",
+    GeneType.Landmark,
     "entrezidString",
     "ensemblidString",
     "symbolString",
     "nameString",
-    "familyString",
-    true)
+    "familyString")
 
   "methods on a gene of V2" should "return the method field" in {
     assert(geneV2.name.get === "nameString")
@@ -42,8 +43,7 @@ class GeneModelTest extends FlatSpec {
     assert(geneV2.entrezid.get === "entrezidString")
     assert(geneV2.probesetid === "probesetidString")
     assert(geneV2.geneFamily.get === "familyString")
-    assert(geneV2.dataType === "LM")
-    assert(geneV2.BING.get == true)
+    assert(geneV2.dataType === GeneType.Landmark)
   }
 
 

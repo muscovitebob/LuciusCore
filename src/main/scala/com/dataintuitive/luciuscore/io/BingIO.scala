@@ -17,6 +17,4 @@ object BingIO {
       .as[BINGrow].rdd
   }
 
-
-
 }

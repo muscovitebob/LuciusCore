@@ -1,14 +1,15 @@
 package com.dataintuitive.luciuscore.io
 
+import com.dataintuitive.luciuscore.Bing.GeneType
 import com.dataintuitive.luciuscore.io.GenesIO._
-import com.dataintuitive.test.BaseSparkContextSpec
+import com.dataintuitive.test.{BaseSparkContextSpec, BaseSparkSessionSpec}
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 
 /**
   * Created by toni on 22/04/16.
   */
-class GenesIOTest extends FlatSpec with BaseSparkContextSpec with Matchers {
+class GenesIOTest extends FlatSpec with BaseSparkContextSpec with BaseSparkSessionSpec with Matchers {
 
   info("Test loading of Gene annotations from file")
 
@@ -37,7 +38,7 @@ class GenesIOTest extends FlatSpec with BaseSparkContextSpec with Matchers {
 
   info("Test gene annotation loading in V2 format")
 
-  val genesV2 = loadGenesFromFileV2(sc, "src/test/resources/geneAnnotationsV2.txt")
+  val genesV2 = loadGenesFromFileV2(spark, "src/test/resources/geneAnnotationsV2.txt")
 
   "Loading V2 gene data" should "work" in {
     assert(genesV2.genes(0).symbol.get == "PSME1")
@@ -49,6 +50,10 @@ class GenesIOTest extends FlatSpec with BaseSparkContextSpec with Matchers {
 
   "Loading V2 gene data" should "generate None for empty fields" in {
     assert(genesV2.genes(0).geneFamily == None)
+  }
+
+  "Loading V2 gene data" should "automatically annotate the inference type" in {
+    assert(genesV2.genes(0).dataType == GeneType.Landmark)
   }
 
 }
