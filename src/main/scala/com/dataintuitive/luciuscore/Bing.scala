@@ -31,8 +31,16 @@ object Bing extends Serializable {
         else GeneType.Inferred)).toMap
     }
 
+    private def createBingStatusByEntrezDictionary: Map[String, GeneType.GeneType] = {
+      bing.map(row => (row.entrezID,
+        if (row.inferenceCategory == "Best Inferred (BING)") GeneType.BING
+        else if (row.inferenceCategory == "Inferred") GeneType.Inferred
+        else GeneType.Inferred)).toMap
+    }
+
     val symbolToRow: Map[String, BINGrow] = createSymbolToRowDictionary
     val bingStatus: Map[String, GeneType.GeneType] = createBingStatusDictionary
+    val bingStatusByEntrez: Map[String, GeneType.GeneType] = createBingStatusByEntrezDictionary
 
 
   }
