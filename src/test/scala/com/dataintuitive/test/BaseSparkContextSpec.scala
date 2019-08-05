@@ -13,6 +13,6 @@ object BaseSparkContextSpec {
 
 trait BaseSparkContextSpec {
 
-  lazy val sc = BaseSparkContextSpec.sc.getOrCreate
+  lazy val sc = BaseSparkContextSpec.sc
 
 }
