@@ -81,7 +81,7 @@ object Model extends Serializable {
   }
 
   object Compound {
-    def apply(compoundString:String):Compound = Compound(Some(compoundString))
+    def apply(compoundString:String): Compound = Compound(Some(compoundString))
   }
 
   case class CompoundAnnotations(
@@ -122,7 +122,7 @@ object Model extends Serializable {
   }
 
   object Sample {
-    def apply(sampleString:String):Sample = Sample(Some(sampleString))
+    def apply(sampleString: String): Sample = Sample(Some(sampleString))
   }
 
 }

@@ -73,8 +73,9 @@ object GenesIO {
         else if (isNotProvided(element)) None
         else Some(element.get)
       })
+
       val genes: RDD[GeneAnnotationV2] = genesRddFormatted.map(row => new GeneAnnotationV2(row(0).get, row(1).get,
-        row(2), row(3), row(4), row(5), row(6)))
+        row(2), row(3), row(4), row(5), row(6), None))
 
       new GenesV2(genes.collect)
     }

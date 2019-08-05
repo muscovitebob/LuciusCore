@@ -72,7 +72,7 @@ object GeneModel extends Serializable {
   }
 
   /**
-    * Annotation format to process the new 22K gene format, with inferred genes.
+    * Annotation format to process a fully inferred genome, created using the Subramanian Connectivity Map 2017 OLS model.
     * @param probesetid probeset ID from microarray (a row)
     * @param dataType is the probeset predicted? either LM or INF (inferred)
     * @param entrezid
@@ -80,6 +80,7 @@ object GeneModel extends Serializable {
     * @param symbol uniprot gene symbol
     * @param name full name
     * @param geneFamily gene family descriptor (e.g. Kinases)
+    * @param BING is this gene one of the Best Inferred Genes?
     */
   class GeneAnnotationV2(
                           val probesetid: Probesetid,
@@ -88,22 +89,25 @@ object GeneModel extends Serializable {
                           val ensemblid: Option[String],
                           val symbol: Option[Symbol],
                           val name: Option[String],
-                          val geneFamily: Option[String]) extends Serializable {
+                          val geneFamily: Option[String],
+                          val BING: Option[Boolean]) extends Serializable {
 
     def this(probesetid: Probesetid, dataType: String,
       entrezid: String,
       ensemblid: String,
       symbol: String,
       name: String,
-      geneFamily: String) {
+      geneFamily: String,
+             BING: Boolean) {
         this(probesetid, dataType, Some(entrezid), Some(ensemblid), Some(symbol), Some(name),
-      Some(geneFamily))
+      Some(geneFamily), Some(BING))
     }
 
-    override def toString = s"${probesetid} " +
+    override def toString = s"ProbesetID: ${probesetid}: " +
       s"(entrezid = ${entrezid.getOrElse("NA")}, dataType = ${dataType}, ensemblid = ${ensemblid.getOrElse("NA")}," +
-      s" symbol = ${symbol.getOrElse("NA")}, " +
-      s"name = ${name.getOrElse("NA")}, geneFamily=${geneFamily.getOrElse("NA")}"
+      s" symbol = ${symbol.getOrElse("NA")}," +
+      s" name = ${name.getOrElse("NA")}, geneFamily=${geneFamily.getOrElse("NA")}," +
+      s" BING = ${BING.getOrElse("NA")}"
 
   }
 

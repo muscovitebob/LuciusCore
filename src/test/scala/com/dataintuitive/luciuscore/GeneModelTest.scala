@@ -32,7 +32,8 @@ class GeneModelTest extends FlatSpec {
     "ensemblidString",
     "symbolString",
     "nameString",
-    "familyString")
+    "familyString",
+    true)
 
   "methods on a gene of V2" should "return the method field" in {
     assert(geneV2.name.get === "nameString")
@@ -42,6 +43,7 @@ class GeneModelTest extends FlatSpec {
     assert(geneV2.probesetid === "probesetidString")
     assert(geneV2.geneFamily.get === "familyString")
     assert(geneV2.dataType === "LM")
+    assert(geneV2.BING.get == true)
   }
 
 
