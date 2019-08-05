@@ -149,6 +149,23 @@ object GeneModel extends Serializable {
 
     val probesetidVector = genes.map(_.probesetid)
 
+    /**
+      * Get a new gene annotations database after getting rid of undesirable gene symbols
+      * (these could be ones where the t stats and p stats contain NAs, for example)
+      * This allows you to keep the gene annotations up to date, which is important for indexing
+      * when interacting with the profiles database (RDD[DbRow])
+      */
+    def removeBySymbol(geneSymbols: Array[String]): GenesV2 = {
+      val symbolToProbe = geneSymbols.flatMap(symbol => this.symbol2ProbesetidDict(Some(symbol))).toSet
+      new GenesV2(this.genes.filter(x => !symbolToProbe.contains(x.probesetid)))
+    }
+
+    def removeByProbeset(probesetIDs: Array[String]): GenesV2 = {
+      val probesetIDsInDatabase = this.genes.map(_.probesetid).toSet
+      val relevantProbesets = probesetIDs.toSet intersect probesetIDsInDatabase
+      new GenesV2(this.genes.filter(x => !relevantProbesets.contains(x.probesetid)))
+    }
+
 
 
   }
