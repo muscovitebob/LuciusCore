@@ -16,9 +16,16 @@ object ProfileModel {
     require(database.map(_.sampleAnnotations.p.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
     require(database.map(_.sampleAnnotations.r.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
 
-    def dropGenes(droplist: Array[Symbol]): ProfileDatabase = ???
+    val State = (database, geneAnnotations)
 
-    def dropProbesets(droplist: Array[Probesetid]): ProfileDatabase = ???
+    def dropGenes(droplist: Array[Symbol]): ProfileDatabase = {
+      ???
+    }
+
+    def dropProbesets(droplist: Array[Probesetid]): ProfileDatabase = {
+      val indicesToDrop = droplist.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
+      ???
+    }
 
 
   }

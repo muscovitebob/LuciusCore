@@ -147,6 +147,8 @@ object GeneModel extends Serializable {
         .map(_.swap)
         .toMap
 
+    val probesetid2IndexDict = index2ProbesetidDict.map(_.swap)
+
     val probesetidVector = genes.map(_.probesetid)
 
     /**

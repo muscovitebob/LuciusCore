@@ -1,5 +1,7 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.TransformationFunctions._
+
 /**
   * The types and classes used throughout Lucius.
   *
@@ -39,11 +41,31 @@ object Model extends Serializable {
 
   type Row = Array[Option[String]]
 
-  case class DbRow(
-                    val pwid: Option[String],
-                    val sampleAnnotations: SampleAnnotations,
-                    val compoundAnnotations: CompoundAnnotations
-                  ) extends Serializable
+  case class DbRow(pwid: Option[String],
+                   sampleAnnotations: SampleAnnotations,
+                   compoundAnnotations: CompoundAnnotations) extends Serializable
+
+  object DbRow {
+
+    private def removeByIndex(indices: Set[Int], collection: Array[Double]): Array[Double] = {
+      collection.zip(Stream from 1).filter { case (x, i) => !indices.contains(i) }.map(_._1)
+    }
+
+    def dropProbesetsByIndex(thisRow: DbRow, indices: Set[Int]): DbRow = {
+      if (thisRow.sampleAnnotations.t.isDefined &&
+        thisRow.sampleAnnotations.p.isDefined) {
+        val newSampleAnnotation = thisRow.sampleAnnotations.copy(
+          t = thisRow.sampleAnnotations.t.map(removeByIndex(indices, _)),
+          p = thisRow.sampleAnnotations.p.map(removeByIndex(indices, _))
+        )
+        val newRankUpdatedSampleAnnotation = newSampleAnnotation.copy(
+          r = Some(stats2RankVector((newSampleAnnotation.t.get, newSampleAnnotation.p.get)))
+        )
+        thisRow.copy(sampleAnnotations = newRankUpdatedSampleAnnotation)
+      } else thisRow
+    }
+  }
+
 
   case class SampleAnnotations(
                                 val sample: Sample,
