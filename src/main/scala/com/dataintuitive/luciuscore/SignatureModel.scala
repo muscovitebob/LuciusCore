@@ -1,5 +1,6 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.GeneModel.GenesV2
 import com.dataintuitive.luciuscore.utilities.SignedString
 import com.dataintuitive.luciuscore.Model._
 
@@ -213,5 +214,118 @@ object SignatureModel extends Serializable {
     val asSignedInt = signature.map(_.toDouble.toInt)
 
   }
+
+  /**
+    * The base trait for a signature
+    */
+  trait SignatureV2 {
+
+    val signature: SignatureType
+
+    // Notation can be one of Symbol, Probesetid, Index
+    // The flow is Symbol -> Probesetid -> Index and back
+    val notation: NotationType
+
+    implicit def stringExtension(string: String) = new SignedString(string)
+
+    override def toString = signature.mkString(s"Signature of type ${notation}: [", ",", "]")
+
+    val length = signature.length
+    val size = signature.length
+
+  }
+
+
+  object SignatureV2 {
+
+    /**
+      * arrays of strings can be gene symbols or probesets. probesets are always terminated with an `_at`
+      * every element of a potential signature must satisfy the conditions
+      */
+    def apply(s: Array[String]): SignatureV2 = {
+      if (s.toList.forall(x => x.endsWith("_at"))) {
+        ProbesetidSignatureV2(s)
+      } else {
+        SymbolSignatureV2(s)
+      }
+    }
+
+    /**
+      * arrays of doubles can only be indexed signatures
+      * @param s
+      * @return
+      */
+    def apply(s: Array[Index]): IndexSignatureV2 = {
+      IndexSignatureV2(s)
+    }
+
+    /**
+      * Generate a Signature of provided type/notation.
+      */
+    def apply(s: SignatureType, notation: String): Signature = {
+      notation match {
+        case "symbol" => SymbolSignature(s)
+        case "probesetid" => ProbesetidSignature(s)
+        case "index" => IndexSignature(s)
+        case _ => println("Wrong signature type, please try again"); SymbolSignature(s)
+      }
+    }
+  }
+
+  case class SymbolSignatureV2(signature: Array[Symbol]) extends SignatureV2 with Serializable {
+
+    val notation: NotationType = SYMBOL
+
+    /**
+      * use the dictionaries provided by a particular GenesV2 object to translate between signature types
+      */
+    def translate2Probesetid(translator: GenesV2): ProbesetidSignatureV2 = {
+      require(signature.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
+      ProbesetidSignatureV2(signature.flatMap(symbol => translator.symbol2ProbesetidDict(Some(symbol))))
+    }
+
+    def translate2Index(translator: GenesV2): IndexSignatureV2 = {
+      require(signature.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
+      val probesets = signature.flatMap(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
+      IndexSignatureV2(probesets.map(probeset => translator.probesetid2IndexDict(probeset)))
+    }
+
+  }
+
+  case class ProbesetidSignatureV2(signature: Array[Symbol]) extends SignatureV2 with Serializable {
+
+    val notation: NotationType = PROBESETID
+
+    def translate2Symbol(translator: GenesV2): SymbolSignatureV2 = {
+      require(signature.forall(probeset => translator.probesetidVector.contains(probeset)))
+      SymbolSignatureV2(signature.map(probeset => translator.probesetid2SymbolDict(probeset).get))
+    }
+
+    def translate2Index(translator: GenesV2): IndexSignatureV2 = {
+      require(signature.forall(probeset => translator.probesetidVector.contains(probeset)))
+      IndexSignatureV2(signature.map(probeset => translator.probesetid2IndexDict(probeset)))
+    }
+
+  }
+
+  case class IndexSignatureV2(signature: Array[Index]) extends Serializable {
+
+    val notation: NotationType = INDEX
+
+    def translate2Symbol(translator: GenesV2): SymbolSignatureV2 = {
+      require(signature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
+      val result = signature.map(index => translator.index2ProbesetidDict(index))
+        .map(probeset => translator.probesetid2SymbolDict(probeset).get)
+      SymbolSignatureV2(result)
+    }
+
+    def translate2Probeset(translator: GenesV2): ProbesetidSignatureV2 = {
+      require(signature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
+      ProbesetidSignatureV2(signature.map(index => translator.index2ProbesetidDict(index)))
+    }
+
+  }
+
+
 
 }

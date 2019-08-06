@@ -4,6 +4,9 @@ import com.dataintuitive.luciuscore.GeneModel.GenesV2
 import com.dataintuitive.luciuscore.Model._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import com.dataintuitive.luciuscore.DbFunctions._
+import com.dataintuitive.luciuscore.SignatureModel._
+import com.dataintuitive.luciuscore.TransformationFunctions._
 
 object ProfileModel {
   /**
@@ -35,16 +38,26 @@ object ProfileModel {
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
 
-    def zhangScore(signatureList: List[List[SignatureType]],
+    def retrieveSignificant(database: RDD[DbRow], significanceLevel: Double = 0.5): RDD[DbRow] = {
+      val significantIndices = database.map(row => (row.pwid, row.sampleAnnotations))
+        .map(taggedannot => (taggedannot._1,
+          taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2))).collect.toMap
+      database.map(row => (row, significantIndices(row.pwid).toSet))
+        .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
+    }
+
+    def zhangScore(signature: List[String],
                    significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, Double] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
-      if (significantOnly) {
-        val significantIndices = RankedState.database.map(row => (row.pwid, row.sampleAnnotations))
-          .map(taggedannot => (taggedannot._1,
-            taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2))).collect.toMap
-        // keep the old ranks since we want our scoring to be generalised across the database
-        val significantDbRows = RankedState.database.map(row => (row, significantIndices(row.pwid).toSet))
-          .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
+      // first leave only the probesets of interest
+      val localData = ProfileDatabase.this.dropGenes(signature.toSet)
+      // give the signature ranks
+      val signatureFormal = SymbolSignature(signature.toArray).translate2Probesetid()
+      val sigRanks = signature2OrderedRankVector(signature, signature.length)
+      // now subset by significance
+      val significantLocalDatabase = if (significantOnly) {
+        val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
+        val scored = significantDbRows.map(row => row)
         ???
 
 
