@@ -60,17 +60,17 @@ class GeneModelTest extends FlatSpec {
   }
 
   "removing by gene symbol" should "correctly discard annotations with that symbol" in {
-    val newAnnotations = annotationsV2.removeBySymbol(Array("PSME1"))
+    val newAnnotations = annotationsV2.removeBySymbol(Set("PSME1"))
     assert(newAnnotations.genes.forall(_.symbol.get != "PSME1"))
   }
 
   "removing by probesetID" should "correctly discard annotations with that probeset" in {
-    val newAnnotations = annotationsV2.removeByProbeset(Array("201453_x_at"))
+    val newAnnotations = annotationsV2.removeByProbeset(Set("201453_x_at"))
     assert(newAnnotations.genes.forall(_.probesetid != "201453_x_at"))
   }
 
   "removing by probesetID" should "correctly reset the indexing" in {
-    val newAnnotations = annotationsV2.removeByProbeset(Array("201453_x_at"))
+    val newAnnotations = annotationsV2.removeByProbeset(Set("201453_x_at"))
     assert(newAnnotations.index2ProbesetidDict(3) == "200059_s_at")
   }
 

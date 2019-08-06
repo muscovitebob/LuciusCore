@@ -110,6 +110,8 @@ object GeneModel extends Serializable {
 
   class GenesV2(val genes: Array[GeneAnnotationV2]) extends Serializable {
 
+    // note: cannot be converted to RDD without introducing an index into GeneAnnotationV2. strictly ordered
+
     private def splitRecord(record: String): Array[String] = record.split("///").map(_.trim)
 
     private def splitAndAttach(maybeString: Option[String],
@@ -157,12 +159,12 @@ object GeneModel extends Serializable {
       * This allows you to keep the gene annotations up to date, which is important for indexing
       * when interacting with the profiles database (RDD[DbRow])
       */
-    def removeBySymbol(geneSymbols: Array[String]): GenesV2 = {
-      val symbolToProbe = geneSymbols.flatMap(symbol => this.symbol2ProbesetidDict(Some(symbol))).toSet
+    def removeBySymbol(geneSymbols: Set[String]): GenesV2 = {
+      val symbolToProbe = geneSymbols.flatMap(symbol => this.symbol2ProbesetidDict(Some(symbol)))
       new GenesV2(this.genes.filter(x => !symbolToProbe.contains(x.probesetid)))
     }
 
-    def removeByProbeset(probesetIDs: Array[String]): GenesV2 = {
+    def removeByProbeset(probesetIDs: Set[String]): GenesV2 = {
       val probesetIDsInDatabase = this.genes.map(_.probesetid).toSet
       val relevantProbesets = probesetIDs.toSet intersect probesetIDsInDatabase
       new GenesV2(this.genes.filter(x => !relevantProbesets.contains(x.probesetid)))
