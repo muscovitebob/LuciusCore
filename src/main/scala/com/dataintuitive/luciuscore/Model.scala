@@ -51,17 +51,20 @@ object Model extends Serializable {
       collection.zip(Stream from 1).filter { case (x, i) => !indices.contains(i) }.map(_._1)
     }
 
-    def dropProbesetsByIndex(thisRow: DbRow, indices: Set[Int]): DbRow = {
+    def dropProbesetsByIndex(thisRow: DbRow, indices: Set[Int], rerank: Boolean = true): DbRow = {
       if (thisRow.sampleAnnotations.t.isDefined &&
         thisRow.sampleAnnotations.p.isDefined) {
         val newSampleAnnotation = thisRow.sampleAnnotations.copy(
           t = thisRow.sampleAnnotations.t.map(removeByIndex(indices, _)),
           p = thisRow.sampleAnnotations.p.map(removeByIndex(indices, _))
         )
-        val newRankUpdatedSampleAnnotation = newSampleAnnotation.copy(
+        val newRankedSampleAnnotation = if (rerank) { newSampleAnnotation.copy(
           r = Some(stats2RankVector((newSampleAnnotation.t.get, newSampleAnnotation.p.get)))
         )
-        thisRow.copy(sampleAnnotations = newRankUpdatedSampleAnnotation)
+        } else {
+          newSampleAnnotation.copy(r = newSampleAnnotation.r.map(removeByIndex(indices, _)))
+        }
+        thisRow.copy(sampleAnnotations = newRankedSampleAnnotation)
       } else thisRow
     }
   }

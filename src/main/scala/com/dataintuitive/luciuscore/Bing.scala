@@ -2,7 +2,6 @@ package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.io.BingIO.BINGrow
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.DataType
 
 object Bing extends Serializable {
 

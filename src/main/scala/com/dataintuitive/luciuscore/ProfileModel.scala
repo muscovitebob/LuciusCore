@@ -18,6 +18,7 @@ object ProfileModel {
 
     case class ProfileDbState(database: RDD[DbRow], geneAnnotations: GenesV2)
     val State = ProfileDbState(database, geneAnnotations)
+    val RankedState = ProfileDbState(database.filter(x => x.sampleAnnotations.r.isDefined), geneAnnotations)
 
     def dropGenes(droplist: Set[Symbol]): ProfileDatabase = {
       val probesetsToDrop = droplist.flatMap(symbol => geneAnnotations.symbol2ProbesetidDict(Some(symbol)))
@@ -33,6 +34,29 @@ object ProfileModel {
       val droppedGeneAnnotations = geneAnnotations.removeByProbeset(droplist)
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
+
+    def zhangScore(signatureList: List[List[SignatureType]],
+                   significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, Double] = {
+      require(significanceLevel >= 0 && significanceLevel <= 1)
+      if (significantOnly) {
+        val significantIndices = RankedState.database.map(row => (row.pwid, row.sampleAnnotations))
+          .map(taggedannot => (taggedannot._1,
+            taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2))).collect.toMap
+        // keep the old ranks since we want our scoring to be generalised across the database
+        val significantDbRows = RankedState.database.map(row => (row, significantIndices(row.pwid).toSet))
+          .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
+        ???
+
+
+
+
+
+      }
+    ???
+    }
+
+
+
 
 
   }
