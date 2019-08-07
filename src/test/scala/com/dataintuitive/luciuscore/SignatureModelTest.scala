@@ -1,5 +1,7 @@
 package com.dataintuitive.luciuscore
 
+import com.dataintuitive.luciuscore.Bing.GeneType
+import com.dataintuitive.luciuscore.GeneModel.{GeneAnnotationV2, GenesV2}
 import com.dataintuitive.luciuscore.Model._
 import com.dataintuitive.luciuscore.SignatureModel._
 import org.scalatest.{FlatSpec, Matchers}
@@ -100,4 +102,24 @@ class SignatureModelTest extends FlatSpec with Matchers {
     // Default for undefined notation is symbol
     assert(Signature(Array("NA"), notation = "undefined").notation === "symbol")
   }
+
+
+
+  info("test SignatureV2")
+
+  val annotationsV2 = new GenesV2(Array(
+    new GeneAnnotationV2("200814_at", GeneType.Landmark, None, None, Some("PSME1"), None, None),
+    new GeneAnnotationV2("222103_at", GeneType.Landmark, None, None, Some("ATF1"), None, None),
+    new GeneAnnotationV2("201453_x_at", GeneType.Landmark, None, None, Some("RHEB"), None, None),
+    new GeneAnnotationV2("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None)
+  ))
+
+  val symbols1 = SignatureV2.apply(Array("RHEB"))
+  val probesets1 = SignatureV2.apply(Array("200059_s_at"))
+  val indices1 = SignatureV2.apply(Array(2))
+
+  "SymbolSignatureV2" should "correctly translate to probesets" in {
+    symbols1.transla
+  }
+
 }

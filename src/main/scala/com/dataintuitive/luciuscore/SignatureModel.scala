@@ -220,7 +220,7 @@ object SignatureModel extends Serializable {
     */
   trait SignatureV2 {
 
-    val signature: SignatureType
+    def signature: SignatureType
 
     // Notation can be one of Symbol, Probesetid, Index
     // The flow is Symbol -> Probesetid -> Index and back
@@ -245,6 +245,8 @@ object SignatureModel extends Serializable {
     def apply(s: Array[String]): SignatureV2 = {
       if (s.toList.forall(x => x.endsWith("_at"))) {
         ProbesetidSignatureV2(s)
+      } else if (s.toList.forall(x => x.forall(_.isDigit) && x.length == 1)) {
+        IndexSignatureV2(s)
       } else {
         SymbolSignatureV2(s)
       }
@@ -256,18 +258,18 @@ object SignatureModel extends Serializable {
       * @return
       */
     def apply(s: Array[Index]): IndexSignatureV2 = {
-      IndexSignatureV2(s)
+      IndexSignatureV2(s.map(_.toString))
     }
 
     /**
       * Generate a Signature of provided type/notation.
       */
-    def apply(s: SignatureType, notation: String): Signature = {
+    def apply(s: SignatureType, notation: String): SignatureV2 = {
       notation match {
-        case "symbol" => SymbolSignature(s)
-        case "probesetid" => ProbesetidSignature(s)
-        case "index" => IndexSignature(s)
-        case _ => println("Wrong signature type, please try again"); SymbolSignature(s)
+        case "symbol" => SymbolSignatureV2(s)
+        case "probesetid" => ProbesetidSignatureV2(s)
+        case "index" => IndexSignatureV2(s)
+        case _ => println("Wrong signature type, please try again"); SymbolSignatureV2(s)
       }
     }
   }
@@ -287,7 +289,7 @@ object SignatureModel extends Serializable {
     def translate2Index(translator: GenesV2): IndexSignatureV2 = {
       require(signature.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
       val probesets = signature.flatMap(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
-      IndexSignatureV2(probesets.map(probeset => translator.probesetid2IndexDict(probeset)))
+      IndexSignatureV2(probesets.map(probeset => translator.probesetid2IndexDict(probeset).toString))
     }
 
   }
@@ -303,25 +305,27 @@ object SignatureModel extends Serializable {
 
     def translate2Index(translator: GenesV2): IndexSignatureV2 = {
       require(signature.forall(probeset => translator.probesetidVector.contains(probeset)))
-      IndexSignatureV2(signature.map(probeset => translator.probesetid2IndexDict(probeset)))
+      IndexSignatureV2(signature.map(probeset => translator.probesetid2IndexDict(probeset).toString))
     }
 
   }
 
-  case class IndexSignatureV2(signature: Array[Index]) extends Serializable {
+  case class IndexSignatureV2(signature: Array[Symbol]) extends SignatureV2 with Serializable {
 
     val notation: NotationType = INDEX
 
+    val IntSignature = signature.map(_.toInt)
+
     def translate2Symbol(translator: GenesV2): SymbolSignatureV2 = {
-      require(signature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
-      val result = signature.map(index => translator.index2ProbesetidDict(index))
+      require(IntSignature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
+      val result = IntSignature.map(index => translator.index2ProbesetidDict(index))
         .map(probeset => translator.probesetid2SymbolDict(probeset).get)
       SymbolSignatureV2(result)
     }
 
     def translate2Probeset(translator: GenesV2): ProbesetidSignatureV2 = {
-      require(signature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
-      ProbesetidSignatureV2(signature.map(index => translator.index2ProbesetidDict(index)))
+      require(IntSignature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
+      ProbesetidSignatureV2(IntSignature.map(index => translator.index2ProbesetidDict(index)))
     }
 
   }
