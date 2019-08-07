@@ -52,12 +52,12 @@ object ProfileModel {
       // first leave only the probesets of interest
       val localData = ProfileDatabase.this.dropGenes(signature.toSet)
       // give the signature ranks
-      val signatureFormal = SymbolSignature(signature.toArray).translate2Probesetid()
-      val sigRanks = signature2OrderedRankVector(signature, signature.length)
+      val signatureFormal = SymbolSignature(signature.toArray)
+      //val sigRanks = signature2OrderedRankVector(signature, signature.length)
       // now subset by significance
       val significantLocalDatabase = if (significantOnly) {
-        val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
-        val scored = significantDbRows.map(row => row)
+        //val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
+        //val scored = significantDbRows.map(row => row)
         ???
 
 

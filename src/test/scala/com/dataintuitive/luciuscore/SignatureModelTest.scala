@@ -111,15 +111,42 @@ class SignatureModelTest extends FlatSpec with Matchers {
     new GeneAnnotationV2("200814_at", GeneType.Landmark, None, None, Some("PSME1"), None, None),
     new GeneAnnotationV2("222103_at", GeneType.Landmark, None, None, Some("ATF1"), None, None),
     new GeneAnnotationV2("201453_x_at", GeneType.Landmark, None, None, Some("RHEB"), None, None),
-    new GeneAnnotationV2("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None)
+    new GeneAnnotationV2("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None),
+    new GeneAnnotationV2("220034_at", GeneType.Landmark, None, None, Some("RHEB"), None, None)
   ))
 
-  val symbols1: SymbolSignatureV2 = SignatureV2Factory(Array("RHEB"))
-  val probesets1 = SignatureV2Factory.apply(Array("200059_s_at"))
-  val indices1 = SignatureV2Factory.apply(Array(2))
+  val symbols1 = SymbolSignatureV2(Array("RHEB"))
+  val probesets1 = ProbesetidSignatureV2(Array("200059_s_at"))
+  val indices1 = IndexSignatureV2(Array(2))
 
   "SymbolSignatureV2" should "correctly translate to probesets" in {
-    symbols1.
+    val probeset2 = symbols1.translate2Probesetid(annotationsV2)
+    assert(probeset2.signature.toList == List("201453_x_at", "220034_at"))
+  }
+
+  it should "correctly translate to indices" in {
+    val indices2 = symbols1.translate2Index(annotationsV2)
+    assert(indices2.signature.toList == List(3, 5))
+  }
+
+  "ProbesetidSignatureV2" should "correctly translate to symbols" in {
+    val symbols2 = probesets1.translate2Symbol(annotationsV2)
+    assert(symbols2.signature.toList == List("RHOA"))
+  }
+
+  it should "correctly translate to indices" in {
+    val indices2 = probesets1.translate2Index(annotationsV2)
+    assert(indices2.signature.toList == List(4))
+  }
+
+  "IndexSignatureV2" should "correctly translate to symbols" in {
+    val symbols2 = indices1.translate2Symbol(annotationsV2)
+    assert(symbols2.signature.toList == List("ATF1"))
+  }
+
+  it should "correctly translate to probesets" in {
+    val probesets2 = indices1.translate2Probeset(annotationsV2)
+    assert(probesets2.signature.toList == List("222103_at"))
   }
 
 }
