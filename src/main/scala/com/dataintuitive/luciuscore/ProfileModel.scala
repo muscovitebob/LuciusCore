@@ -46,14 +46,13 @@ object ProfileModel {
         .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
     }
 
-    def zhangScore(signature: List[String],
+    def zhangScore(aSignature: SymbolSignatureV2,
                    significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, Double] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
-      val localData = ProfileDatabase.this.dropGenes(signature.toSet)
+      val localData = ProfileDatabase.this.dropGenes(aSignature.signature.toSet)
       // give the signature ranks
-      val signatureFormal = SymbolSignature(signature.toArray)
-      //val sigRanks = signature2OrderedRankVector(signature, signature.length)
+      //val sigRanks = signature2OrderedRankVector(aSignature.translate2Index(), signature.length)
       // now subset by significance
       val significantLocalDatabase = if (significantOnly) {
         //val significantDbRows = retrieveSignificant(localData.database, significanceLevel)

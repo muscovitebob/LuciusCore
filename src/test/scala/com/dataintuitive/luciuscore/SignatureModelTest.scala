@@ -149,4 +149,11 @@ class SignatureModelTest extends FlatSpec with Matchers {
     assert(probesets2.signature.toList == List("222103_at"))
   }
 
+  val symbols2 = SymbolSignatureV2(Array("-RHEB"))
+
+  "SymboSignatureV2 with -ve" should "correctly preserve the sign converting to probesets" in {
+    val probesets2 = symbols2.translate2Probesetid(annotationsV2)
+    assert(probesets2.signature.toList == List("-201453_x_at", "-220034_at"))
+  }
+
 }

@@ -123,12 +123,12 @@ object GeneModel extends Serializable {
       case None => Array((None -> otherString))
     }
 
-    private def createGeneDictionary(genes: Array[GeneAnnotationV2]): GeneDictionaryV2 = {
-      genes.flatMap(ga => splitAndAttach(ga.symbol, ga.probesetid))
-        .groupBy(_._1).map(intermediate => intermediate._1 -> intermediate._2.map(_._2))
+    private def createGeneDictionary(genes: Array[GeneAnnotationV2]): Map[Option[Symbol], Array[Probesetid]] = {
+      genes.map(ga => (ga.symbol, ga.probesetid)).groupBy(_._1).map(x => (x._1, x._2.map(_._2)))
     }
 
-    private def createInverseGeneDictionary(dict: GeneDictionaryV2): InverseGeneDictionaryV2 = {
+    private def createInverseGeneDictionary(dict: Map[Option[Symbol], Array[Probesetid]]):
+    Map[Probesetid, Option[Symbol]] = {
       dict.toList.map(_.swap).flatMap{ element =>
         if (element._1.length > 1) element._1.flatMap(probesetid => Array((probesetid, element._2)))
         else Array((element._1.head, element._2))
