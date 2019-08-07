@@ -259,6 +259,7 @@ object SignatureModel extends Serializable {
     val notation: NotationType = SYMBOL
     val signDict = signature.map(x => (x.abs, x.sign))
     private val signs = signDict.map(_._2)
+    private val intSigns = signs.map(signToInt(_))
     private val values = signDict.map(_._1)
 
     private def createRanks: RankVector = {
@@ -273,6 +274,8 @@ object SignatureModel extends Serializable {
 
     /**
       * Gene Symbols may have multiple probesets - signs are distributed onto all associated probesets
+      * Symbol -> Probeset - 1:n
+      * Sign(Symbol) -> Sign(P1), Sign(P2)...
       */
     def translate2Probesetid(translator: GenesV2): ProbesetidSignatureV2 = {
       require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
@@ -285,13 +288,19 @@ object SignatureModel extends Serializable {
 
     /**
       * Gene symbols can have multiple indices
+      * Symbol -> Index - 1:n
+      * Sign(Symbol) -> Sign(i1), Sign(i2)...
       * @param translator
       * @return
       */
     def translate2Index(translator: GenesV2): IndexSignatureV2 = {
-      require(signature.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
-      val probesets = signature.flatMap(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
-      IndexSignatureV2(probesets.map(probeset => translator.probesetid2IndexDict(probeset)))
+      require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
+
+      val probesets = values.map(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
+      val indices = probesets.map(probs4Symbol => probs4Symbol.map(translator.probesetid2IndexDict(_)))
+      val signAndIndices = indices.zip(intSigns).map(_.swap)
+      val signedIndices = signAndIndices.flatMap(x => x._2.map(y => x._1 * y))
+      IndexSignatureV2(signedIndices)
     }
 
   }
@@ -308,6 +317,7 @@ object SignatureModel extends Serializable {
     /**
       * Probesets for the same genes can potentially have differing signs. Usually we pick majority for the symbol.
       * In even conflicting situations, the signs annihilate, and thus the gene is removed from the signature.
+      * Probeset -> Symbol - 1:1
        * @param translator
       * @return
       */
@@ -326,12 +336,17 @@ object SignatureModel extends Serializable {
 
     /**
       * Probesets each have only one index, straightforward
+      * Probeset -> Index - 1:1
       * @param translator
       * @return
       */
     def translate2Index(translator: GenesV2): IndexSignatureV2 = {
-      require(signature.forall(probeset => translator.probesetidVector.contains(probeset)))
-      IndexSignatureV2(signature.map(probeset => translator.probesetid2IndexDict(probeset)))
+      require(values.forall(probeset => translator.probesetidVector.contains(probeset)))
+
+      val translation = values.map(probeset => translator.probesetid2IndexDict(probeset))
+      val signedTranslation = translation.zip(intSigns).map(x => x._2 * x._1)
+
+      IndexSignatureV2(signedTranslation)
     }
 
   }
@@ -342,10 +357,13 @@ object SignatureModel extends Serializable {
     val notation: NotationType = INDEX
     val signDict = signature.map(x => (x.abs, x.signum))
     private val signs = signDict.map(_._2)
+    private val intSigns = signs
     private val values = signDict.map(_._1)
 
     /**
-      * A single index may correspond to multiple symbols. Then the final symbol is annihilated if the index sign cancels out
+      * Although a single symbol can have multiple indices, a single index is only mapped to one gene symbol
+      * Index -> Symbol - 1:1
+      * Sign(i) -> Sign(s)
       * @param translator
       * @return
       */
@@ -355,22 +373,28 @@ object SignatureModel extends Serializable {
       val translationProbes = values.map(index => translator.index2ProbesetidDict(index))
       val translation = translationProbes.map(probeset => translator.probesetid2SymbolDict(probeset).get)
       val signedTranslation = translation.zip(signs)
+      // need to perform sign annihilation if they cancel out
       val newSigns = signedTranslation.groupBy(_._1)
-        .map(x => (x._1, x._2.map(_._2).sum.signum))
+        .map(x => (x._1, x._2.map(_._2).sum)).filter(_._2 != 0).map(x => (x._1, intToSign(x._2.signum)))
 
-      val newSignedSymbolList = newSigns.filter{_._2 != 0}.map(_.swap).map(x => intToSign(x._1) + x._2).toArray
+      val newSignedSymbolList = newSigns.map(x => x._2 + x._1).toArray
 
       SymbolSignatureV2(newSignedSymbolList)
     }
 
     /**
       * Indices each have only one probeset
+      * Index -> Probeset - 1:1
+      * Sign(i) -> Sign(p)
       * @param translator
       * @return
       */
     def translate2Probeset(translator: GenesV2): ProbesetidSignatureV2 = {
-      require(signature.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
-      ProbesetidSignatureV2(signature.map(index => translator.index2ProbesetidDict(index)))
+      require(values.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
+
+      val translation = values.map(index => translator.index2ProbesetidDict(index))
+      val signedTranslation = translation.zip(intSigns).map(x => intToSign(x._2) + x._1)
+      ProbesetidSignatureV2(signedTranslation)
     }
 
 

@@ -156,4 +156,48 @@ class SignatureModelTest extends FlatSpec with Matchers {
     assert(probesets2.signature.toList == List("-201453_x_at", "-220034_at"))
   }
 
+  it should "correctly preserve the sign converting to indices" in {
+    val indices2 = symbols2.translate2Index(annotationsV2)
+    assert(indices2.signature.sameElements(Array(-3, -5)))
+  }
+
+  val probesets2 = ProbesetidSignatureV2(Array("-201453_x_at", "-220034_at"))
+
+  "ProbesetSignatureV2 -ve" should "correctly preserve to symbol" in {
+    val symbols3 = probesets2.translate2Symbol(annotationsV2)
+    assert(symbols3.signature.sameElements(Array("-RHEB")))
+  }
+
+  it should "correctly preserve to indices" in {
+    val indices3 = probesets2.translate2Index(annotationsV2)
+    assert(indices3.signature.toList == List(-3, -5))
+  }
+
+  val indices2 = IndexSignatureV2(Array(-2, -3))
+
+  "IndexSignatureV2 -ve" should "correctly preserve to symbol" in {
+    val symbols4 = indices2.translate2Symbol(annotationsV2)
+    assert(symbols4.signature.toList == List("-ATF1", "-RHEB"))
+  }
+
+  it should "correctly preserve to probeset" in {
+    val probeset4 = indices2.translate2Probeset(annotationsV2)
+    assert(probeset4.signature.toList == List("-222103_at", "-201453_x_at"))
+  }
+
+
+  val indices3 = IndexSignatureV2(Array(-3, 5))
+  "IndexSignatureV2" should "annihilate signs" in {
+    val symbols5 = indices3.translate2Symbol(annotationsV2)
+    assert(symbols5.signature.toList == List())
+  }
+
+
+  val probesets3 = ProbesetidSignatureV2(Array("-201453_x_at", "220034_at"))
+  "ProbesetSignatureV2" should "annihilate signs" in {
+    val symbols6 = probesets3.translate2Symbol(annotationsV2)
+    assert(symbols6.signature.toList == List())
+  }
+
+
 }
