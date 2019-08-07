@@ -114,12 +114,12 @@ class SignatureModelTest extends FlatSpec with Matchers {
     new GeneAnnotationV2("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None)
   ))
 
-  val symbols1 = SignatureV2.apply(Array("RHEB"))
-  val probesets1 = SignatureV2.apply(Array("200059_s_at"))
-  val indices1 = SignatureV2.apply(Array(2))
+  val symbols1: SymbolSignatureV2 = SignatureV2Factory(Array("RHEB"))
+  val probesets1 = SignatureV2Factory.apply(Array("200059_s_at"))
+  val indices1 = SignatureV2Factory.apply(Array(2))
 
   "SymbolSignatureV2" should "correctly translate to probesets" in {
-    symbols1.transla
+    symbols1.
   }
 
 }
