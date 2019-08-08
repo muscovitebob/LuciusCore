@@ -10,7 +10,8 @@ import com.dataintuitive.luciuscore.TransformationFunctions._
 
 object ProfileModel {
   /**
-    * Object to deal with RDD[DbRow] AKA databases of transcriptomic profiles, against which connectivity scoring is possible
+    * Object to deal with databases of transcriptomic profiles, against which connectivity scoring is possible
+    * bundling annotations with the profile RDD guarantees consistent interpretation
     */
 
   class ProfileDatabase(spark: SparkSession, database: RDD[DbRow], geneAnnotations: GenesV2) extends Serializable {
@@ -24,6 +25,8 @@ object ProfileModel {
     val RankedState = ProfileDbState(database.filter(x => x.sampleAnnotations.r.isDefined), geneAnnotations)
 
     def dropGenes(droplist: Set[Symbol]): ProfileDatabase = {
+      require(droplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(Some(symbol))))
+
       val probesetsToDrop = droplist.flatMap(symbol => geneAnnotations.symbol2ProbesetidDict(Some(symbol)))
       val indicesToDrop = probesetsToDrop.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
       val droppedDatabase = database.map(x => DbRow.dropProbesetsByIndex(x, indicesToDrop))
@@ -32,31 +35,61 @@ object ProfileModel {
     }
 
     def dropProbesets(droplist: Set[Probesetid]): ProfileDatabase = {
+      require(droplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
+
       val indicesToDrop = droplist.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
       val droppedDatabase = database.map(x => DbRow.dropProbesetsByIndex(x, indicesToDrop))
       val droppedGeneAnnotations = geneAnnotations.removeByProbeset(droplist)
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
 
+    def keepGenes(keeplist: Set[Symbol]): ProfileDatabase = {
+      require(keeplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(Some(symbol))))
+
+      val probesetsToKeep = keeplist.flatMap(symbol => geneAnnotations.symbol2ProbesetidDict(Some(symbol)))
+      val indicesToKeep = probesetsToKeep.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
+      val indicesToDrop = geneAnnotations.index2ProbesetidDict.keySet diff indicesToKeep
+      val droplist = geneAnnotations.symbol2ProbesetidDict.keySet.map(_.get) diff keeplist
+
+      val droppedDatabase = database.map(x => DbRow.dropProbesetsByIndex(x, indicesToDrop))
+      val droppedGeneAnnotations = geneAnnotations.removeBySymbol(droplist)
+      new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
+
+    }
+
+    def keepProbesets(keeplist : Set[Probesetid]): ProfileDatabase = {
+      require(keeplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
+
+      val indicesToKeep = keeplist.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
+      val indicesToDrop = geneAnnotations.index2ProbesetidDict.keySet diff indicesToKeep
+      val droplist = geneAnnotations.probesetid2IndexDict.keySet diff keeplist
+
+      val droppedDatabase = database.map(x => DbRow.dropProbesetsByIndex(x, indicesToDrop))
+      val droppedGeneAnnotations = geneAnnotations.removeByProbeset(droplist)
+
+      new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
+    }
+
     def retrieveSignificant(database: RDD[DbRow], significanceLevel: Double = 0.5): RDD[DbRow] = {
+      require(significanceLevel >= 0 && significanceLevel <= 1)
+      // give p vals one based index, filter out all more than siglevel, then drop each DbRows corresponding indices
       val significantIndices = database.map(row => (row.pwid, row.sampleAnnotations))
-        .map(taggedannot => (taggedannot._1,
-          taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2))).collect.toMap
+        .map(taggedannot => (taggedannot._1, taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2)
+        )).collect.toMap
       database.map(row => (row, significantIndices(row.pwid).toSet))
         .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
     }
 
+    /**
     def zhangScore(aSignature: SymbolSignatureV2,
                    significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, Double] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
       val localData = ProfileDatabase.this.dropGenes(aSignature.signature.toSet)
-      // give the signature ranks
-      //val sigRanks = signature2OrderedRankVector(aSignature.translate2Index(), signature.length)
       // now subset by significance
       val significantLocalDatabase = if (significantOnly) {
-        //val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
-        //val scored = significantDbRows.map(row => row)
+        val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
+        val scored = significantDbRows.map(row => row)
         ???
 
 
@@ -65,7 +98,7 @@ object ProfileModel {
 
       }
     ???
-    }
+    }**/
 
 
 

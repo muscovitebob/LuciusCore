@@ -223,14 +223,16 @@ object SignatureModel extends Serializable {
 
     val StringSignature: SignatureType
     val ordered: Boolean
-    //val r: RankVector
+    val r: RankVector
 
     // Notation can be one of Symbol, Probesetid, Index
     // The flow is Symbol -> Probesetid -> Index and back
     val notation: NotationType
 
-    //protected def createRanks: RankVector
+    protected def createRanks: RankVector
 
+
+    // for simplicity these functions handle no other cases, make sure to filter out 0 and such before using
     protected def signToInt(sign: String): Int = sign match {
       case "" => 1
       case "-" => -1
@@ -262,15 +264,15 @@ object SignatureModel extends Serializable {
     private val intSigns = signs.map(signToInt(_))
     private val values = signDict.map(_._1)
 
-    private def createRanks: RankVector = {
-      //if (ordered) {
-        //signature.zip(this.length to 1 by -1).map{
-          //case (symbol)
-            //???
-        //}
-      //}
-      ???
+    def createRanks: RankVector = {
+      if (ordered) {
+        signature.zip(this.length to 1 by -1).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      } else {
+        signature.zip(Array.fill(this.length)(1)).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      }
     }
+
+    val r: RankVector = createRanks
 
     /**
       * Gene Symbols may have multiple probesets - signs are distributed onto all associated probesets
@@ -314,10 +316,20 @@ object SignatureModel extends Serializable {
     private val intSigns = signs.map(signToInt(_))
     private val values = signDict.map(_._1)
 
+    def createRanks: RankVector = {
+      if (ordered) {
+        signature.zip(this.length to 1 by -1).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      } else {
+        signature.zip(Array.fill(this.length)(1)).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      }
+    }
+
+    val r: RankVector = createRanks
+
     /**
       * Probesets for the same genes can potentially have differing signs. Usually we pick majority for the symbol.
       * In even conflicting situations, the signs annihilate, and thus the gene is removed from the signature.
-      * Probeset -> Symbol - 1:1
+      * Probeset -> Symbol - n:1
        * @param translator
       * @return
       */
@@ -360,9 +372,20 @@ object SignatureModel extends Serializable {
     private val intSigns = signs
     private val values = signDict.map(_._1)
 
+    def createRanks: RankVector = {
+      if (ordered) {
+        signature.zip(this.length to 1 by -1).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      } else {
+        signature.zip(Array.fill(this.length)(1)).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
+      }
+    }
+
+    val r: RankVector = createRanks
+
     /**
-      * Although a single symbol can have multiple indices, a single index is only mapped to one gene symbol
-      * Index -> Symbol - 1:1
+      * Although a single symbol can have multiple indices, a single index is only mapped to one gene symbol.
+      * With multiple indices that describe probesets for the same gene, we could have a need to collapse the indices.
+      * Index -> Symbol - n:1
       * Sign(i) -> Sign(s)
       * @param translator
       * @return

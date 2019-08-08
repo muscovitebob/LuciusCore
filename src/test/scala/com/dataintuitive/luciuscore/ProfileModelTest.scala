@@ -64,4 +64,18 @@ class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
       == List(3.0, 4.0, 1.0, 2.0))
   }
 
+  it should "keep gene symbols desired" in {
+    val keeplist = Set("RHOA")
+    val newProfiles = profiles.keepGenes(keeplist)
+    assert(newProfiles.State.geneAnnotations.genes.map(_.probesetid).toList == List("200059_s_at"))
+    assert(newProfiles.State.geneAnnotations.genes.map(_.symbol.get).toList == List("RHOA"))
+  }
+
+  it should "keep probesets desired" in {
+    val keeplist = Set("200622_x_at")
+    val newProfiles = profiles.keepProbesets(keeplist)
+    assert(newProfiles.State.geneAnnotations.genes.map(_.probesetid).toList == List("200622_x_at"))
+    assert(newProfiles.State.geneAnnotations.genes.map(_.symbol.get).toList == List("CALM3"))
+  }
+
 }

@@ -199,5 +199,16 @@ class SignatureModelTest extends FlatSpec with Matchers {
     assert(symbols6.signature.toList == List())
   }
 
+  val symbols7 = SymbolSignatureV2(Array("RHEB", "-ATF1"))
+
+  "SymbolSignatureV2" should "correctly create ordered ranks" in {
+    assert(symbols7.r.toList == List(2, -1))
+  }
+
+  val symbols8 = SymbolSignatureV2(Array("RHEB", "-ATF1"), ordered = false)
+
+  "SymbolSignatureV2" should "correctly create unordered ranks" in {
+    assert(symbols8.r.toList == List(1, -1))
+  }
 
 }
