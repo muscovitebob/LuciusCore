@@ -70,14 +70,26 @@ object ProfileModel {
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
 
-    def retrieveSignificant(database: RDD[DbRow], significanceLevel: Double = 0.5): RDD[DbRow] = {
+    /**
+      * DbRows with only the significant entires for t, p and r. r is not re-ranked. Each DbRow includes Array of
+      * significant indices we subset for tracing back to original annotation
+      * @param significanceLevel
+      * @return
+      */
+    def retrieveSignificant(significanceLevel: Double = 0.5): RDD[(DbRow, Array[Int])] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // give p vals one based index, filter out all more than siglevel, then drop each DbRows corresponding indices
       val significantIndices = database.map(row => (row.pwid, row.sampleAnnotations))
-        .map(taggedannot => (taggedannot._1, taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel).map(_._2)
-        )).collect.toMap
-      database.map(row => (row, significantIndices(row.pwid).toSet))
+        .map(taggedannot => (taggedannot._1, taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel)))
+        .collect.toMap
+
+      val nonSignificantIndices = significantIndices.map(x => (x._1, x._2.map(_._2).toSet))
+        .map(x => (x._1, geneAnnotations.index2ProbesetidDict.keySet diff x._2)).toMap
+
+      val filteredDb = database.map(row => (row, nonSignificantIndices(row.pwid)))
         .map(tuple => DbRow.dropProbesetsByIndex(tuple._1, tuple._2, rerank = false))
+
+      filteredDb.map(x => (x, significantIndices(x.pwid).map(_._2)))
     }
 
     /**

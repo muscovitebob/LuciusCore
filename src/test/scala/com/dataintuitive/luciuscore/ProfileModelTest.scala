@@ -79,7 +79,19 @@ class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
     assert(newProfiles.State.geneAnnotations.genes.map(_.symbol.get).toList == List("CALM3"))
   }
 
-  "retrieveSignificant" should "correctly retrieve only indices with certain significance tresholds" in {
+  "retrieveSignificant" should "correctly retrieve only indices with certain significance thresholds" in {
+    val sigThresh = 0.1
+    val significant = profiles.retrieveSignificant(sigThresh)
+    val justRows = significant.map(_._1).collect
+    val justIndices = significant.map(_._2).collect
+    assert(justRows(0).sampleAnnotations.t.get.toList == List(4, 5, 7))
+    assert(justRows(1).sampleAnnotations.t.get.toList == List(4, 7, 9, 3))
+    assert(justRows(0).sampleAnnotations.p.get.toList == List(0.05, 0.01, 0.02))
+    assert(justRows(1).sampleAnnotations.p.get.toList == List(0.05, 0.10, 0.02, 0.001))
+    assert(justRows(0).sampleAnnotations.r.get.toList == List(3, 4, 6.0))
+    assert(justRows(1).sampleAnnotations.r.get.toList == List(3, 4, 5, 2))
+    assert(justIndices(0).toList == List(2, 3, 6))
+    assert(justIndices(1).toList == List(1, 2, 3, 5))
 
   }
 
