@@ -12,6 +12,8 @@ object ProfileModel {
   /**
     * Object to deal with databases of transcriptomic profiles, against which connectivity scoring is possible
     * bundling annotations with the profile RDD guarantees consistent interpretation
+    * BIG ASSUMPTION: The original geneAnnotations.txt that was loaded and the statistics files
+    * had the same probeset ordering.
     */
 
   class ProfileDatabase(spark: SparkSession, database: RDD[DbRow], geneAnnotations: GenesV2) extends Serializable {
