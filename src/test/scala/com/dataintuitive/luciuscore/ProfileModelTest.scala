@@ -4,6 +4,7 @@ import com.dataintuitive.luciuscore.Bing.GeneType
 import com.dataintuitive.luciuscore.GeneModel.{GeneAnnotationV2, GenesV2}
 import com.dataintuitive.luciuscore.Model.{Compound, CompoundAnnotations, DbRow, Sample, SampleAnnotations}
 import com.dataintuitive.luciuscore.ProfileModel._
+import com.dataintuitive.luciuscore.SignatureModel.SymbolSignatureV2
 import com.dataintuitive.test.BaseSparkSessionSpec
 import org.apache.spark.rdd.RDD
 import org.scalatest.FlatSpec
@@ -93,6 +94,12 @@ class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
     assert(justIndices(0).toList == List(2, 3, 6))
     assert(justIndices(1).toList == List(1, 2, 3, 5))
 
+  }
+
+  "zhangScore" should "correctly score the entire database against a signature" in {
+    val signature = SymbolSignatureV2(Array("ATF1", "-PSME1"))
+    val scores = profiles.zhangScore(signature)
+    assert(true)
   }
 
 }

@@ -6,7 +6,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 import com.dataintuitive.luciuscore.DbFunctions._
 import com.dataintuitive.luciuscore.SignatureModel._
-import com.dataintuitive.luciuscore.TransformationFunctions._
+import com.dataintuitive.luciuscore.ZhangScoreFunctions._
 
 object ProfileModel {
   /**
@@ -94,29 +94,33 @@ object ProfileModel {
       filteredDb.map(x => (x, significantIndices(x.pwid).map(_._2)))
     }
 
-    /**
+
     def zhangScore(aSignature: SymbolSignatureV2,
-                   significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, Double] = {
+                   significantOnly: Boolean = true, significanceLevel: Double = 0.05): Map[Sample, (Double, ProbesetidSignatureV2)] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
-      val localData = ProfileDatabase.this.dropGenes(aSignature.signature.toSet)
+      val localData = ProfileDatabase.this.keepGenes(aSignature.values.toSet).RankedState
+      val probesetSig = aSignature.translate2Probesetid(localData.geneAnnotations)
       // now subset by significance
-      val significantLocalDatabase = if (significantOnly) {
-        val significantDbRows = retrieveSignificant(localData.database, significanceLevel)
-        val scored = significantDbRows.map(row => row)
-        ???
-
-
-
-
-
+      val scores = if (significantOnly) {
+        val significant = retrieveSignificant(significanceLevel)
+        val significantDbRows = significant.map(_._1)
+        val pwidAndIndices = significant.map(x => (x._1.pwid, x._2))
+        val scored = significantDbRows.map(row => (row.sampleAnnotations.sample, (connectionScore(row.sampleAnnotations.r.get, probesetSig.r), probesetSig))).collect.toMap
+        scored
+      } else {
+        val scored = localData.database.map(x => (x.sampleAnnotations.sample, (connectionScore(x.sampleAnnotations.r.get, probesetSig.r), probesetSig))).collect.toMap
+        scored
       }
-    ???
-    }**/
+      scores
+    }
+
+
+
+    }
 
 
 
 
 
-  }
 }

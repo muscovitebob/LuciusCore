@@ -219,7 +219,7 @@ object SignatureModel extends Serializable {
   /**
     * The base trait for a signature
     */
-  abstract class SignatureV2 {
+  abstract class SignatureV2 extends Serializable {
 
     val StringSignature: SignatureType
     val ordered: Boolean
@@ -262,7 +262,7 @@ object SignatureModel extends Serializable {
     val signDict = signature.map(x => (x.abs, x.sign))
     private val signs = signDict.map(_._2)
     private val intSigns = signs.map(signToInt(_))
-    private val values = signDict.map(_._1)
+    val values = signDict.map(_._1)
 
     def createRanks: RankVector = {
       if (ordered) {
@@ -271,7 +271,8 @@ object SignatureModel extends Serializable {
         signature.zip(Array.fill(this.length)(1)).zip(intSigns).map(x => x._1._2 * x._2 toDouble)
       }
     }
-
+    // Note: it is not typically valid to Zhang score symbol ranks against a database of probeset ranks
+    // that only works if you have a 1:1 mapping between symbols and probesets, which is not true in the inferred L1000!
     val r: RankVector = createRanks
 
     /**
@@ -314,7 +315,7 @@ object SignatureModel extends Serializable {
     val signDict = signature.map(x => (x.abs, x.sign))
     private val signs = signDict.map(_._2)
     private val intSigns = signs.map(signToInt(_))
-    private val values = signDict.map(_._1)
+    val values = signDict.map(_._1)
 
     def createRanks: RankVector = {
       if (ordered) {
@@ -370,7 +371,7 @@ object SignatureModel extends Serializable {
     val signDict = signature.map(x => (x.abs, x.signum))
     private val signs = signDict.map(_._2)
     private val intSigns = signs
-    private val values = signDict.map(_._1)
+    val values = signDict.map(_._1)
 
     def createRanks: RankVector = {
       if (ordered) {
