@@ -43,20 +43,17 @@ object Model extends Serializable {
 
   case class DbRow(pwid: Option[String],
                    sampleAnnotations: SampleAnnotations,
-                   compoundAnnotations: CompoundAnnotations) extends Serializable
-
-  object DbRow {
-
+                   compoundAnnotations: CompoundAnnotations) extends Serializable {
     private def removeByIndex(indices: Set[Int], collection: Array[Double]): Array[Double] = {
       collection.zip(Stream from 1).filter { case (x, i) => !indices.contains(i) }.map(_._1)
     }
 
-    def dropProbesetsByIndex(thisRow: DbRow, indices: Set[Int], rerank: Boolean = true): DbRow = {
-      if (thisRow.sampleAnnotations.t.isDefined &&
-        thisRow.sampleAnnotations.p.isDefined) {
-        val newSampleAnnotation = thisRow.sampleAnnotations.copy(
-          t = thisRow.sampleAnnotations.t.map(removeByIndex(indices, _)),
-          p = thisRow.sampleAnnotations.p.map(removeByIndex(indices, _))
+    def dropProbesetsByIndex(indices: Set[Int], rerank: Boolean = true): DbRow = {
+      if (this.sampleAnnotations.t.isDefined &&
+        this.sampleAnnotations.p.isDefined) {
+        val newSampleAnnotation = this.sampleAnnotations.copy(
+          t = this.sampleAnnotations.t.map(removeByIndex(indices, _)),
+          p = this.sampleAnnotations.p.map(removeByIndex(indices, _))
         )
         val newRankedSampleAnnotation = if (rerank) { newSampleAnnotation.copy(
           r = Some(stats2RankVector((newSampleAnnotation.t.get, newSampleAnnotation.p.get)))
@@ -64,8 +61,8 @@ object Model extends Serializable {
         } else {
           newSampleAnnotation.copy(r = newSampleAnnotation.r.map(removeByIndex(indices, _)))
         }
-        thisRow.copy(sampleAnnotations = newRankedSampleAnnotation)
-      } else thisRow
+        this.copy(sampleAnnotations = newRankedSampleAnnotation)
+      } else this
     }
   }
 

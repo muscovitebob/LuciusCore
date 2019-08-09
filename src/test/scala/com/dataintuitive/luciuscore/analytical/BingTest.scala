@@ -1,7 +1,7 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.analytical
 
-import com.dataintuitive.luciuscore.Bing._
-import com.dataintuitive.luciuscore.io.BingIO._
+import com.dataintuitive.luciuscore.analytical.Bing._
+import com.dataintuitive.luciuscore.analytical.io.BingIO._
 import com.dataintuitive.test.BaseSparkSessionSpec
 import org.scalatest.FlatSpec
 

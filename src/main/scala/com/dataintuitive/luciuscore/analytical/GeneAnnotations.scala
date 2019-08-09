@@ -1,76 +1,9 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.analytical
 
+import com.dataintuitive.luciuscore.Model.{Probesetid, Symbol}
 import com.dataintuitive.luciuscore.analytical.Bing.GeneType.GeneType
-import com.dataintuitive.luciuscore.Model._
 
-/**
-  * A model for a gene annotation and a collection of genes.
-  */
-object GeneModel extends Serializable {
-
-  /**
-    * Class for holding information about a gene.
-    */
-  class GeneAnnotation(
-                        val probesetid: Probesetid,
-                        val entrezid: String,
-                        val ensemblid: String,
-                        val symbol: Symbol,
-                        val name: String) extends Serializable {
-
-    override def toString = s"${probesetid} (entrezid = ${entrezid}, ensemblid = ${ensemblid}, symbol = ${symbol}, name = ${name})"
-
-  }
-
-
-  /**
-    * Convenience class for holding an `Array` of `Gene` with some values/methods to make life easier.
-    *
-    * @param genes An array of genes.
-    */
-  class Genes(val genes: Array[GeneAnnotation]) extends Serializable {
-
-    /**
-      * The input contains entries with multiple symbol names, separated by `///`.
-      */
-    private def splitGeneAnnotationSymbols(in: String, value: String): Array[(String, String)] = {
-      val arrayString = in.split("///").map(_.trim)
-      return arrayString.flatMap(name => Map(name -> value))
-    }
-
-    /**
-      * Create a dictionary (`GeneDictionary`)
-      */
-    private def createGeneDictionary(genesRdd: Array[GeneAnnotation]): GeneDictionary =  {
-      genesRdd
-        .flatMap(ga => splitGeneAnnotationSymbols(ga.symbol, ga.probesetid))
-        .toMap
-    }
-
-    /**
-      * Dictionary to translate symbols to probsetids
-      */
-    val symbol2ProbesetidDict = createGeneDictionary(genes)
-
-    /**
-      * Dictionary to translate indices to probesetids.
-      *
-      * Remark: offset 1 is important for consistency when translating between dense and sparse format
-      */
-    val index2ProbesetidDict: Map[Int, Probesetid] =
-    genes
-      .map(_.probesetid)
-      .zipWithIndex
-      .map(tuple => (tuple._1, tuple._2 + 1))
-      .map(_.swap)
-      .toMap
-
-    /**
-      * A vector containing the probesetids representing the genes.
-      */
-    val probesetidVector = genes.map(_.probesetid)
-
-  }
+object GeneAnnotations {
 
   /**
     * Annotation format to process a fully inferred genome, created using the Subramanian Connectivity Map 2017 OLS model.
@@ -82,7 +15,7 @@ object GeneModel extends Serializable {
     * @param name full name
     * @param geneFamily gene family descriptor (e.g. Kinases)
     */
-  class GeneAnnotationV2(
+  class GeneAnnotationRecord(
                           val probesetid: Probesetid,
                           val dataType: GeneType,
                           val entrezid: Option[String],
@@ -92,13 +25,13 @@ object GeneModel extends Serializable {
                           val geneFamily: Option[String]) extends Serializable {
 
     def this(probesetid: Probesetid, dataType: GeneType,
-      entrezid: String,
-      ensemblid: String,
-      symbol: String,
-      name: String,
-      geneFamily: String) {
-        this(probesetid, dataType, Some(entrezid), Some(ensemblid), Some(symbol), Some(name),
-      Some(geneFamily))
+             entrezid: String,
+             ensemblid: String,
+             symbol: String,
+             name: String,
+             geneFamily: String) {
+      this(probesetid, dataType, Some(entrezid), Some(ensemblid), Some(symbol), Some(name),
+        Some(geneFamily))
     }
 
     override def toString = s"ProbesetID: ${probesetid}: " +
@@ -108,14 +41,14 @@ object GeneModel extends Serializable {
 
   }
 
-  class GenesV2(val genes: Array[GeneAnnotationV2]) extends Serializable {
+  class GeneAnnotationsDb(val genes: Array[GeneAnnotationRecord]) extends Serializable {
 
     // note: cannot be converted to RDD without introducing an index into GeneAnnotationV2. strictly ordered
 
     private def splitRecord(record: String): Array[String] = record.split("///").map(_.trim)
 
     private def splitAndAttach(maybeString: Option[String],
-                                  otherString: String): Array[(Option[String], String)] = maybeString match {
+                               otherString: String): Array[(Option[String], String)] = maybeString match {
       case Some(name) => {
         val arrayString = splitRecord(name)
         arrayString.flatMap(name => Map(Some(name) -> otherString))
@@ -123,7 +56,7 @@ object GeneModel extends Serializable {
       case None => Array((None -> otherString))
     }
 
-    private def createGeneDictionary(genes: Array[GeneAnnotationV2]): Map[Option[Symbol], Array[Probesetid]] = {
+    private def createGeneDictionary(genes: Array[GeneAnnotationRecord]): Map[Option[Symbol], Array[Probesetid]] = {
       genes.map(ga => (ga.symbol, ga.probesetid)).groupBy(_._1).map(x => (x._1, x._2.map(_._2)))
     }
 
@@ -159,15 +92,15 @@ object GeneModel extends Serializable {
       * This allows you to keep the gene annotations up to date, which is important for indexing
       * when interacting with the profiles database (RDD[DbRow])
       */
-    def removeBySymbol(geneSymbols: Set[String]): GenesV2 = {
+    def removeBySymbol(geneSymbols: Set[String]): GeneAnnotationsDb = {
       val symbolToProbe = geneSymbols.flatMap(symbol => this.symbol2ProbesetidDict(Some(symbol)))
-      new GenesV2(this.genes.filter(x => !symbolToProbe.contains(x.probesetid)))
+      new GeneAnnotationsDb(this.genes.filter(x => !symbolToProbe.contains(x.probesetid)))
     }
 
-    def removeByProbeset(probesetIDs: Set[String]): GenesV2 = {
+    def removeByProbeset(probesetIDs: Set[String]): GeneAnnotationsDb = {
       val probesetIDsInDatabase = this.genes.map(_.probesetid).toSet
       val relevantProbesets = probesetIDs.toSet intersect probesetIDsInDatabase
-      new GenesV2(this.genes.filter(x => !relevantProbesets.contains(x.probesetid)))
+      new GeneAnnotationsDb(this.genes.filter(x => !relevantProbesets.contains(x.probesetid)))
     }
 
 

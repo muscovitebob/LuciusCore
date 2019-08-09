@@ -1,18 +1,17 @@
-package com.dataintuitive.luciuscore.io
+package com.dataintuitive.luciuscore.analytical.io
 
-import org.apache.spark
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.mllib.linalg.distributed.{BlockMatrix, IndexedRow, IndexedRowMatrix}
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.distributed.{IndexedRow, IndexedRowMatrix}
+import org.apache.spark.rdd.RDD
 
 import scala.util.Try
 
-object StatsIOV2 {
+object StatisticsIO {
   /**
     * Load the t and p stats files. Make sure to keep track of the probesetIDs and the sampleIDs.
     * For transposition, implement conversions to MLLib block matrix and use the distributed transpose.
+    * Big remark: This turns out to be too slow in practice.
     */
 
   case class StatsData(columns: Vector[String], rows: Vector[String], dataMatrix: RDD[(Long, Vector[Double])]) {

@@ -1,22 +1,22 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.analytical
 
-import com.dataintuitive.luciuscore.Bing.GeneType
-import com.dataintuitive.luciuscore.GeneModel.{GeneAnnotationV2, GenesV2}
-import com.dataintuitive.luciuscore.Model.{Compound, CompoundAnnotations, DbRow, Sample, SampleAnnotations}
-import com.dataintuitive.luciuscore.ProfileModel._
-import com.dataintuitive.luciuscore.SignatureModel.SymbolSignatureV2
+import Bing.GeneType
+import com.dataintuitive.luciuscore.analytical.GeneAnnotations._
+import com.dataintuitive.luciuscore.Model._
+import com.dataintuitive.luciuscore.analytical.Signatures.SymbolSignatureV2
+import com.dataintuitive.luciuscore.analytical.ProfileModel._
 import com.dataintuitive.test.BaseSparkSessionSpec
 import org.apache.spark.rdd.RDD
 import org.scalatest.FlatSpec
 
 class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
-  val annotationsV2 = new GenesV2(Array(
-    new GeneAnnotationV2("200814_at", GeneType.Landmark, None, None, Some("PSME1"), None, None),
-    new GeneAnnotationV2("222103_at", GeneType.Landmark, None, None, Some("ATF1"), None, None),
-    new GeneAnnotationV2("201453_x_at", GeneType.Landmark, None, None, Some("RHEB"), None, None),
-    new GeneAnnotationV2("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None),
-    new GeneAnnotationV2("200622_x_at", GeneType.Landmark, None, None, Some("CALM3"), None, None),
-    new GeneAnnotationV2("220673_at", GeneType.Landmark, None, None, Some("ATF1"), None, None))
+  val annotationsV2 = new GeneAnnotationsDb(Array(
+    new GeneAnnotationRecord("200814_at", GeneType.Landmark, None, None, Some("PSME1"), None, None),
+    new GeneAnnotationRecord("222103_at", GeneType.Landmark, None, None, Some("ATF1"), None, None),
+    new GeneAnnotationRecord("201453_x_at", GeneType.Landmark, None, None, Some("RHEB"), None, None),
+    new GeneAnnotationRecord("200059_s_at", GeneType.Landmark, None, None, Some("RHOA"), None, None),
+    new GeneAnnotationRecord("200622_x_at", GeneType.Landmark, None, None, Some("CALM3"), None, None),
+    new GeneAnnotationRecord("220673_at", GeneType.Landmark, None, None, Some("ATF1"), None, None))
   )
 
   val row1 = DbRow(Some("GA666"), SampleAnnotations(

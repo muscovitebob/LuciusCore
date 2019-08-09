@@ -31,9 +31,6 @@ class ModelTest extends FlatSpec {
   val compound1 = Compound(Some("compound1"), smiles=Some("43jbdhadfn3oure"), inchikey=Some("inchikey1"))
   val compound2 = Compound(Some("compound2"), smiles=Some("bdslkhjfadoi43d"), inchikey=Some("inchikey2"))
 
-
-  info("test dropping probesets by index")
-
   val aRow = DbRow(Some("identity"), SampleAnnotations(
     minSample,
     Some(Array(2, 4, 5, 1, 6)),
@@ -42,7 +39,7 @@ class ModelTest extends FlatSpec {
     compoundAnnotations = minCompoundAnnotations)
 
   "dropping probesets" should "correctly return a new DbRow and recompute the ranks" in {
-    val newRow = DbRow.dropProbesetsByIndex(aRow, Set(2, 3))
+    val newRow = aRow.dropProbesetsByIndex(Set(2, 3))
     assert(newRow.sampleAnnotations.t.get.toList == List(2.0, 1.0, 6.0))
     assert(newRow.sampleAnnotations.p.get.toList == List(0.5, 0.2, 1.0))
     assert(newRow.sampleAnnotations.r.get.toList == List(2.0, 1.0, 3.0))

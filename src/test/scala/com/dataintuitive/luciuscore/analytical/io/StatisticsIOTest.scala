@@ -1,11 +1,10 @@
-package com.dataintuitive.luciuscore.io
+package com.dataintuitive.luciuscore.analytical.io
 
-import org.scalatest.{FlatSpec, FunSuite}
-import com.dataintuitive.luciuscore.io.StatsIOV2._
+import com.dataintuitive.luciuscore.analytical.io.StatisticsIO._
 import com.dataintuitive.test.BaseSparkSessionSpec._
-import org.apache.spark.rdd.RDD
+import org.scalatest.FlatSpec
 
-class StatsIOV2Test extends FlatSpec {
+class StatisticsIOTest extends FlatSpec {
 
   val tStats = loadFile(spark.sparkContext, "src/test/resources/tStats.txt", " ")
 

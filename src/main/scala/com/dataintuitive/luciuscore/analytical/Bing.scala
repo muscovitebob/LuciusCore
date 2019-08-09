@@ -1,6 +1,6 @@
-package com.dataintuitive.luciuscore
+package com.dataintuitive.luciuscore.analytical
 
-import com.dataintuitive.luciuscore.io.BingIO.BINGrow
+import com.dataintuitive.luciuscore.analytical.io.BingIO.BINGrow
 import org.apache.spark.rdd.RDD
 
 object Bing extends Serializable {

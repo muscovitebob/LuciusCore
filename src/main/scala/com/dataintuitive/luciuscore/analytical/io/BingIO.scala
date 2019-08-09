@@ -1,4 +1,4 @@
-package com.dataintuitive.luciuscore.io
+package com.dataintuitive.luciuscore.analytical.io
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession

@@ -1,9 +1,8 @@
-package com.dataintuitive.luciuscore.io
+package com.dataintuitive.luciuscore.analytical.io
 
-import com.dataintuitive.luciuscore.io.BingIO._
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import com.dataintuitive.luciuscore.analytical.io.BingIO._
 import com.dataintuitive.test.BaseSparkSessionSpec
+import org.scalatest.{FlatSpec, Matchers}
 
 class BingIOTest extends FlatSpec with BaseSparkSessionSpec with Matchers {
 

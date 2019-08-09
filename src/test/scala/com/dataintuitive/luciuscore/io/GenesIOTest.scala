@@ -1,6 +1,6 @@
 package com.dataintuitive.luciuscore.io
 
-import com.dataintuitive.luciuscore.Bing.GeneType
+import com.dataintuitive.luciuscore.analytical.Bing.GeneType
 import com.dataintuitive.luciuscore.io.GenesIO._
 import com.dataintuitive.test.{BaseSparkContextSpec, BaseSparkSessionSpec}
 import org.scalatest.FlatSpec
@@ -34,26 +34,6 @@ class GenesIOTest extends FlatSpec with BaseSparkContextSpec with BaseSparkSessi
 
   "Loading gene data from a file with missing data" should "work and convert to NA" in {
     assert(genesWithMissingFeatures.genes(0).ensemblid === "NA")
-  }
-
-  info("Test gene annotation loading in V2 format")
-
-  val genesV2 = loadGenesFromFileV2(spark, "src/test/resources/geneAnnotationsV2.txt")
-
-  "Loading V2 gene data" should "work" in {
-    assert(genesV2.genes(0).symbol.get == "PSME1")
-  }
-
-  "Loading V2 gene data" should "generate None for '---' fields" in {
-    assert(genesV2.genes(0).entrezid == None)
-  }
-
-  "Loading V2 gene data" should "generate None for empty fields" in {
-    assert(genesV2.genes(0).geneFamily == None)
-  }
-
-  "Loading V2 gene data" should "automatically annotate the inference type" in {
-    assert(genesV2.genes(0).dataType == GeneType.Landmark)
   }
 
 }
