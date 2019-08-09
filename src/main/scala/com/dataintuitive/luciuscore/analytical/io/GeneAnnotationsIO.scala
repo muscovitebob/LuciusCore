@@ -29,7 +29,7 @@ object GeneAnnotationsIO {
     val genes: RDD[GeneAnnotationRecord] = genesRddFormatted.map(row =>
       new GeneAnnotationRecord(row(0).get, row(1).get match {
         case "LM" => GeneType.Landmark
-        case "Inf" => geneTypeDict(row(1).get)
+        case "INF" => geneTypeDict(row(4).get)
       },
         row(2), row(3), row(4), row(5), row(6)))
 
