@@ -5,6 +5,8 @@ import com.dataintuitive.test.BaseSparkSessionSpec._
 import org.scalatest.FlatSpec
 
 class StatisticsIOTest extends FlatSpec {
+    // increases test time significantly and not used in practice anyway
+  /**
 
   val tStats = loadFile(spark.sparkContext, "src/test/resources/tStats.txt", " ")
 
@@ -34,6 +36,7 @@ class StatisticsIOTest extends FlatSpec {
   "loadFile with transposed spiked file" should "correctly identify and remove bad sample rows" in {
     assert(tStatsNA2._2 == List("222103_at", "201453_x_at"))
   }
+    **/
 
 
 
