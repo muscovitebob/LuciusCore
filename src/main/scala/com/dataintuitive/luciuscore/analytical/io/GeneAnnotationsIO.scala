@@ -23,7 +23,7 @@ object GeneAnnotationsIO {
       else Some(element.get)
     })
 
-    val bingRDD = readBING(spark, "src/main/resources/BING.csv")
+    val bingRDD = readBING(spark, bingAnnotationsFile)
     val geneTypeDict = new bingInformation(bingRDD).bingStatus
 
     val genes: RDD[GeneAnnotationRecord] = genesRddFormatted.map(row =>
