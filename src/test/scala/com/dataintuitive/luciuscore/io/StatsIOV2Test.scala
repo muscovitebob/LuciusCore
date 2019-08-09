@@ -27,13 +27,13 @@ class StatsIOV2Test extends FlatSpec {
   val tStatsNA = loadFile(spark.sparkContext, "src/test/resources/tStatsWithNAs.txt", " ")
 
   "loadFile with spiked file" should "correctly identify and remove bad sample columns" in {
-    assert(tStatsNA._2 == List("BRD-A00420644", "BRD-A01295252"))
+    assert(tStatsNA._2 == List("200059_s_at", "206562_s_at", "203110_at"))
   }
 
-  val tStatsNA2 = loadFile(spark.sparkContext, "src/test/resources/tStats-transposed-head-WithNA.txt", "\t", samplesAsColumns = false)
+  val tStatsNA2 = loadFile(spark.sparkContext, "src/test/resources/tStats-transposed-head-WithNA.txt", "\t", probesetsAsColumns = false)
 
   "loadFile with transposed spiked file" should "correctly identify and remove bad sample rows" in {
-    assert(tStatsNA2._2 == List("BRD-A00420644", "BRD-A00993607"))
+    assert(tStatsNA2._2 == List("222103_at", "201453_x_at"))
   }
 
 

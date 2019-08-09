@@ -30,7 +30,7 @@ object StatsIOV2 {
 
 
   def loadFile(sc: SparkContext, filepath: String, separator: String,
-               samplesAsColumns: Boolean = true): (StatsData, List[String]) = {
+               probesetsAsColumns: Boolean = true): (StatsData, List[String]) = {
     //val data = spark.read.option("sep", "\t").option("maxColumns", 35000).csv(filepath)
     // RDD ordering is the same as the tsv so long as we do not shuffle
     val raw = sc.textFile(filepath).map(_.split(separator).map(_.trim))
@@ -49,9 +49,10 @@ object StatsIOV2 {
       case offset :: rest => rest
     })
 
-    if (samplesAsColumns) {
-      // we are looking to remove samples that have NA values. if samples were cols in file, and the RDD is of rows, this logic
-      // does it
+    if (!probesetsAsColumns) {
+
+      // remove probesets that have immeasurable values, when they are columns
+
       val indexedEntries = numbersOnly.zipWithIndex.map(x => (x._1.zipWithIndex, x._2))
       val offendingColumnIndices = indexedEntries.map(x => (x._1.filter(y => !isDouble(y._1))
         .map(_._2), x._2)).filter(x => x._1.nonEmpty).flatMap(x => x._1).collect.toSet
@@ -64,7 +65,7 @@ object StatsIOV2 {
       (StatsData(colnamesFiltered.toVector, rownames.toVector, numeric), colnamesOffending)
 
     } else {
-      // every row is a sample - to get rid of NAs just remove the RDD elements
+      // every row is a probeset - to get rid of NAs just remove the RDD elements
 
       val indexed = numbersOnly.zipWithIndex().map(_.swap)
 
