@@ -71,9 +71,9 @@ object Signatures {
       * Sign(Symbol) -> Sign(P1), Sign(P2)...
       */
     def translate2Probesetid(translator: GeneAnnotationsDb): ProbesetidSignatureV2 = {
-      require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
+      require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(symbol)))
       val signedProbesets = values
-        .map(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
+        .map(symbol => translator.symbol2ProbesetidDict(symbol))
         .zip(signs).flatMap(x => x._1.map(y => x._2 + y))
       ProbesetidSignatureV2(signedProbesets)
     }
@@ -87,9 +87,9 @@ object Signatures {
       * @return
       */
     def translate2Index(translator: GeneAnnotationsDb): IndexSignatureV2 = {
-      require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(Some(symbol))))
+      require(values.forall(symbol => translator.symbol2ProbesetidDict.contains(symbol)))
 
-      val probesets = values.map(symbol => translator.symbol2ProbesetidDict(Some(symbol)))
+      val probesets = values.map(symbol => translator.symbol2ProbesetidDict(symbol))
       val indices = probesets.map(probs4Symbol => probs4Symbol.map(translator.probesetid2IndexDict(_)))
       val signAndIndices = indices.zip(intSigns).map(_.swap)
       val signedIndices = signAndIndices.flatMap(x => x._2.map(y => x._1 * y))
@@ -124,6 +124,7 @@ object Signatures {
       * @param translator
       * @return
       */
+    /**
     def translate2Symbol(translator: GeneAnnotationsDb): SymbolSignatureV2 = {
       require(values.forall(probeset => translator.probesetidVector.contains(probeset)))
 
@@ -134,7 +135,7 @@ object Signatures {
 
       val newSignedSymbolList = newSigns.map(x => x._2 + x._1).toArray
       SymbolSignatureV2(newSignedSymbolList)
-    }
+    }**/
 
 
     /**
@@ -181,6 +182,7 @@ object Signatures {
       * @param translator
       * @return
       */
+    /**
     def translate2Symbol(translator: GeneAnnotationsDb): SymbolSignatureV2 = {
       require(values.forall(index => translator.index2ProbesetidDict.keySet.contains(index)))
 
@@ -194,7 +196,7 @@ object Signatures {
       val newSignedSymbolList = newSigns.map(x => x._2 + x._1).toArray
 
       SymbolSignatureV2(newSignedSymbolList)
-    }
+    }**/
 
     /**
       * Indices each have only one probeset

@@ -11,7 +11,7 @@ class GeneAnnotationsIOTest extends FlatSpec with BaseSparkSessionSpec {
     loadGeneAnnotationsFromFile(spark, "src/test/resources/geneAnnotationsV2.txt", "\t", "src/main/resources/BING.csv")
 
   "Loading V2 gene data" should "work" in {
-    assert(genesV2.genes(0).symbol.get == "PSME1")
+    assert(genesV2.genes(0).symbol.get.head == "PSME1")
   }
 
   "Loading V2 gene data" should "generate None for '---' fields" in {
@@ -23,7 +23,7 @@ class GeneAnnotationsIOTest extends FlatSpec with BaseSparkSessionSpec {
   }
 
   "Loading V2 gene data" should "automatically annotate the inference type" in {
-    assert(genesV2.genes(0).dataType == GeneType.Landmark)
+    assert(genesV2.genes(0).dataType.get == GeneType.Landmark)
   }
 
 }

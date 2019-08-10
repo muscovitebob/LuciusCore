@@ -24,17 +24,20 @@ object ProfileModel {
     case class ProfileDbState(database: RDD[DbRow], geneAnnotations: GeneAnnotationsDb)
     val State = ProfileDbState(database, geneAnnotations)
     val RankedState = ProfileDbState(database.filter(x => x.sampleAnnotations.r.isDefined), geneAnnotations)
-
+    /**
     def dropGenes(droplist: Set[Symbol]): ProfileDatabase = {
-      require(droplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(Some(symbol))))
+      require(droplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(symbol)))
 
-      val probesetsToDrop = droplist.flatMap(symbol => geneAnnotations.symbol2ProbesetidDict(Some(symbol)))
-      val indicesToDrop = probesetsToDrop.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
-      val droppedDatabase = database.map(x => x.dropProbesetsByIndex(indicesToDrop))
+      val probesets = droplist.map(symbol => (symbol, geneAnnotations.symbol2ProbesetidDict.get(symbol)))
+      // if a gene symbol doesnt have probesets we dont drop anything for it
+      val probesetsToDrop = probesets.filter(x => x._2.isDefined).map(x => (x._1, x._2.get))
+
+      val indicesToDrop = probesetsToDrop.map(symbol => (symbol._1, symbol._2.map(geneAnnotations.probesetid2IndexDict)))
+      val droppedDatabase = database.map(x => x.dropProbesetsByIndex(indicesToDrop.flatMap(_._2)))
       val droppedGeneAnnotations = geneAnnotations.removeBySymbol(droplist)
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
-
+      **/
     def dropProbesets(droplist: Set[Probesetid]): ProfileDatabase = {
       require(droplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
 
@@ -44,19 +47,24 @@ object ProfileModel {
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
 
-    def keepGenes(keeplist: Set[Symbol]): ProfileDatabase = {
-      require(keeplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(Some(symbol))))
 
-      val probesetsToKeep = keeplist.flatMap(symbol => geneAnnotations.symbol2ProbesetidDict(Some(symbol)))
-      val indicesToKeep = probesetsToKeep.map(probeset => geneAnnotations.probesetid2IndexDict(probeset))
-      val indicesToDrop = geneAnnotations.index2ProbesetidDict.keySet diff indicesToKeep
-      val droplist = geneAnnotations.symbol2ProbesetidDict.keySet.map(_.get) diff keeplist
+    /**
+    def keepGenes(keeplist: Set[Symbol]): ProfileDatabase = {
+      require(keeplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(symbol)))
+
+      val probesets = keeplist.map(symbol => (symbol, geneAnnotations.symbol2ProbesetidDict.get(symbol)))
+      // if a gene doesnt have probesets we drop it
+      val probesetsToKeep = probesets.filter(x => x._2.isDefined).map(x => (x._1, x._2.get))
+      val indicesToKeep = probesetsToKeep.map(symbol => (symbol._1, symbol._2.map(geneAnnotations.probesetid2IndexDict)))
+      val indicesToDrop = geneAnnotations.index2ProbesetidDict.keySet diff indicesToKeep.flatMap(_._2)
+      val droplist = geneAnnotations.symbol2ProbesetidDict.keySet diff keeplist
 
       val droppedDatabase = database.map(x => x.dropProbesetsByIndex(indicesToDrop))
+      val huh1 = droppedDatabase.collect
       val droppedGeneAnnotations = geneAnnotations.removeBySymbol(droplist)
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
 
-    }
+    }**/
 
     def keepProbesets(keeplist : Set[Probesetid]): ProfileDatabase = {
       require(keeplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
@@ -94,21 +102,20 @@ object ProfileModel {
     }
 
 
-    def zhangScore(aSignature: SymbolSignatureV2,
+    def zhangScore(aSignature: ProbesetidSignatureV2,
                    significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true): Map[Sample, (Double, ProbesetidSignatureV2)] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
-      val localData = ProfileDatabase.this.keepGenes(aSignature.values.toSet).RankedState
-      val probesetSig = aSignature.translate2Probesetid(localData.geneAnnotations)
+      val localData = ProfileDatabase.this.keepProbesets(aSignature.values.toSet).RankedState
       // now subset by significance
       val scores = if (significantOnly) {
         val significant = retrieveSignificant(significanceLevel)
         val significantDbRows = significant.map(_._1)
         val pwidAndIndices = significant.map(x => (x._1.pwid, x._2))
-        val scored = significantDbRows.map(row => (row.sampleAnnotations.sample, (connectionScore(row.sampleAnnotations.r.get, probesetSig.r), probesetSig))).collect.toMap
+        val scored = significantDbRows.map(row => (row.sampleAnnotations.sample, (connectionScore(row.sampleAnnotations.r.get, aSignature.r), aSignature))).collect.toMap
         scored
       } else {
-        val scored = localData.database.map(x => (x.sampleAnnotations.sample, (connectionScore(x.sampleAnnotations.r.get, probesetSig.r), probesetSig))).collect.toMap
+        val scored = localData.database.map(x => (x.sampleAnnotations.sample, (connectionScore(x.sampleAnnotations.r.get, aSignature.r), aSignature))).collect.toMap
         scored
       }
       scores

@@ -13,7 +13,7 @@ object GeneAnnotationsIO {
                           geneAnnotationsFile: String,
                           delimiter: String = "\t", bingAnnotationsFile: String): GeneAnnotationsDb  = {
 
-    val featuresToExtract = Seq("probesetID", "dataType", "ENTREZID", "ENSEMBL", "SYMBOL", "GENENAME", "GENEFAMILY")
+    val featuresToExtract = Seq("probesetID", "dataType", "ENTREZID", "ENSEMBL", "SYMBOL", "GENENAME")
     val rawGenesRdd = spark.sparkContext.textFile(geneAnnotationsFile).map(_.split(delimiter))
     val splitGenesRdd = extractFeatures(rawGenesRdd, featuresToExtract, includeHeader=false)
 
@@ -24,14 +24,18 @@ object GeneAnnotationsIO {
     })
 
     val bingRDD = readBING(spark, bingAnnotationsFile)
-    val geneTypeDict = new bingInformation(bingRDD).bingStatus
+    val geneTypeDict = new bingInformation(bingRDD).bingStatus.map(x => (x._1, Some(x._2)))
 
     val genes: RDD[GeneAnnotationRecord] = genesRddFormatted.map(row =>
-      new GeneAnnotationRecord(row(0).get, row(1).get match {
-        case "LM" => GeneType.Landmark
-        case "INF" => geneTypeDict(row(4).get)
-      },
-        row(2), row(3), row(4), row(5), row(6)))
+      new GeneAnnotationRecord(row(0).get,
+
+        row(1).get match {
+        case "LM" => Some(GeneType.Landmark)
+        case "INF" => geneTypeDict.getOrElse(row(4).get, None)
+        case _ => None
+      }
+        ,
+        row(2), row(3), row(4), row(5), None))
 
     new GeneAnnotationsDb(genes.collect)
   }
