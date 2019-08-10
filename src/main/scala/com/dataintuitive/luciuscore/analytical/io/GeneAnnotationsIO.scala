@@ -31,7 +31,11 @@ object GeneAnnotationsIO {
 
         row(1).get match {
         case "LM" => Some(GeneType.Landmark)
-        case "INF" => geneTypeDict.getOrElse(row(4).get, None)
+        case "INF" => row(4) match {
+          case Some(symbol) => {val first = symbol.split("///").map(_.trim).head
+            geneTypeDict.getOrElse(first, None)}
+          case None => None
+        }
         case _ => None
       }
         ,
