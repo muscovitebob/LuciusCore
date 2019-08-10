@@ -39,12 +39,12 @@ class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
   "profileDatabase" should "drop probesets and return a new, consistent, profiledatabase" in {
     val droplist = Set("201453_x_at")
     val newProfiles = profiles.dropProbesets(droplist)
-    assert(newProfiles.State.geneAnnotations.genes.map(_.probesetid).contains("201453_x_at") == false)
-    assert(newProfiles.State.database
+    assert(newProfiles.WholeState.geneAnnotations.genes.map(_.probesetid).contains("201453_x_at") == false)
+    assert(newProfiles.WholeState.database
       .map(row => row.sampleAnnotations)
       .flatMap(annots => List(annots.t.get.size, annots.p.get.size, annots.r.get.size))
       .filter(_ != 5).isEmpty())
-    assert(newProfiles.State.database
+    assert(newProfiles.WholeState.database
       .filter(_.pwid.get == "GA999")
       .map(row => row.sampleAnnotations.r.get)
       .collect.head.toList
@@ -79,8 +79,8 @@ class ProfileModelTest extends FlatSpec with BaseSparkSessionSpec {
   it should "keep probesets desired" in {
     val keeplist = Set("200622_x_at")
     val newProfiles = profiles.keepProbesets(keeplist)
-    assert(newProfiles.State.geneAnnotations.genes.map(_.probesetid).toList == List("200622_x_at"))
-    assert(newProfiles.State.geneAnnotations.genes.map(_.symbol.get.toList).toList == List(List("CALM3")))
+    assert(newProfiles.WholeState.geneAnnotations.genes.map(_.probesetid).toList == List("200622_x_at"))
+    assert(newProfiles.WholeState.geneAnnotations.genes.map(_.symbol.get.toList).toList == List(List("CALM3")))
   }
 
   "retrieveSignificant" should "correctly retrieve only indices with certain significance thresholds" in {

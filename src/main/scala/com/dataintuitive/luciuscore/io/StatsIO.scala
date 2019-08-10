@@ -29,6 +29,7 @@ object StatsIO {
   /**
     * Load batches of data in order to make transposition possible.
     * API is the same as before except we have an option for the batch size.
+    * TODO: Fix a bug somewhere here that makes this return/save only the first batchSize-1 samples!!!
     */
   def loadStatsFromFileInBatches(sc: SparkContext, fileName:String, toTranspose:Boolean = true, batchSize:Int = 50000):RDD[Array[String]] = {
     val raw = sc.textFile(fileName).map(_.split("\t").map(_.trim))

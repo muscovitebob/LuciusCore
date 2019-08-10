@@ -16,14 +16,20 @@ object ProfileModel {
     */
 
   class ProfileDatabase(spark: SparkSession, database: RDD[DbRow], geneAnnotations: GeneAnnotationsDb) extends Serializable {
-    // check consistency
-    require(database.map(_.sampleAnnotations.t.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
-    require(database.map(_.sampleAnnotations.p.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
-    require(database.map(_.sampleAnnotations.r.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+    // we can only perform analysis on the subset of DbRows that have t statistics provided
 
     case class ProfileDbState(database: RDD[DbRow], geneAnnotations: GeneAnnotationsDb)
-    val State = ProfileDbState(database, geneAnnotations)
-    val RankedState = ProfileDbState(database.filter(x => x.sampleAnnotations.r.isDefined), geneAnnotations)
+    val WholeState = ProfileDbState(database, geneAnnotations)
+    val AnalysableState = ProfileDbState(database.filter(x => x.sampleAnnotations.r.isDefined), geneAnnotations)
+    // check consistency
+    require(AnalysableState.database.map(_.sampleAnnotations.t.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+    require(AnalysableState.database.map(_.sampleAnnotations.p.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+    require(AnalysableState.database.map(_.sampleAnnotations.r.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+
+    val unAnalysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isEmpty).map(x => x.pwid)
+    val analysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isDefined).map(x => x.pwid)
+
+
     /**
     def dropGenes(droplist: Set[Symbol]): ProfileDatabase = {
       require(droplist.forall(symbol => geneAnnotations.symbol2ProbesetidDict.contains(symbol)))
@@ -106,7 +112,7 @@ object ProfileModel {
                    significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true): Map[Sample, (Double, ProbesetidSignatureV2)] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
-      val localData = ProfileDatabase.this.keepProbesets(aSignature.values.toSet).RankedState
+      val localData = ProfileDatabase.this.keepProbesets(aSignature.values.toSet).AnalysableState
       // now subset by significance
       val scores = if (significantOnly) {
         val significant = retrieveSignificant(significanceLevel)
