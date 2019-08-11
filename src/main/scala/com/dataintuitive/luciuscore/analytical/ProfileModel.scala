@@ -24,9 +24,9 @@ object ProfileModel {
       .filter(x => x.sampleAnnotations.t.isDefined)
       .filter(x => x.sampleAnnotations.p.isDefined), geneAnnotations)
     // check consistency
-    require(AnalysableState.database.map(_.sampleAnnotations.t.get.length).filter(_ == geneAnnotations.genes.length).isEmpty)
-    require(AnalysableState.database.map(_.sampleAnnotations.p.get.length).filter(_ == geneAnnotations.genes.length).isEmpty)
-    require(AnalysableState.database.map(_.sampleAnnotations.r.get.length).filter(_ == geneAnnotations.genes.length).isEmpty)
+    require(AnalysableState.database.map(_.sampleAnnotations.t.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+    require(AnalysableState.database.map(_.sampleAnnotations.p.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
+    require(AnalysableState.database.map(_.sampleAnnotations.r.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
 
     val unAnalysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isEmpty).map(x => x.pwid)
     val analysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isDefined).map(x => x.pwid)
