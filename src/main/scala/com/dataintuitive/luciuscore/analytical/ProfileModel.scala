@@ -25,8 +25,6 @@ object ProfileModel {
       .filter(x => x.sampleAnnotations.p.isDefined), geneAnnotations)
     // check consistency
     require(AnalysableState.database.map(_.sampleAnnotations.t.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
-    require(AnalysableState.database.map(_.sampleAnnotations.p.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
-    require(AnalysableState.database.map(_.sampleAnnotations.r.get.length).filter(_ != geneAnnotations.genes.length).isEmpty)
 
     val unAnalysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isEmpty).map(x => x.pwid)
     val analysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isDefined).map(x => x.pwid)
@@ -109,34 +107,31 @@ object ProfileModel {
       filteredDb.map(x => (x, significantIndices(x.pwid).map(_._2)))
     }
 
+    def retrieveBING: RDD[(DbRow, Array[Int])] = {
+      ???
+    }
+
 
     def zhangScore(aSignature: ProbesetidSignatureV2,
-                   significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true): Map[Sample, (Double, ProbesetidSignatureV2)] = {
+                   significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true): RDD[(Option[String], ProbesetidSignatureV2, Double)] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
       val localData = ProfileDatabase.this.keepProbesets(aSignature.values.toSet).AnalysableState
       // now subset by significance
-      val scores = if (significantOnly) {
+      val remainingDbRows = if (significantOnly) {
         val significant = retrieveSignificant(significanceLevel)
         val significantDbRows = significant.map(_._1)
         val pwidAndIndices = significant.map(x => (x._1.pwid, x._2))
-        val scored = significantDbRows.map(row => (row.sampleAnnotations.sample, (connectionScore(row.sampleAnnotations.r.get, aSignature.r), aSignature))).collect.toMap
-        scored
-      } else {
-        val scored = localData.database.map(x => (x.sampleAnnotations.sample, (connectionScore(x.sampleAnnotations.r.get, aSignature.r), aSignature))).collect.toMap
-        scored
-      }
-      scores
+        significantDbRows
+      } else {localData.database}
+
+      val scored = remainingDbRows.map(
+        row => (row.pwid, aSignature,
+          if (row.sampleAnnotations.r.get.nonEmpty) {connectionScore(row.sampleAnnotations.r.get, aSignature.r)}
+          else {0.0}))
+      scored
     }
 
-
-
-
-
-    }
-
-
-
-
+  }
 
 }
