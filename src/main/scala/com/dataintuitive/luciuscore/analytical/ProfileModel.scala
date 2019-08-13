@@ -124,7 +124,7 @@ object ProfileModel {
                                     threshold: Double = 1.0/analysableSamples.count): Option[Double] = {
       val normDist = new NormalDistribution(0, 1)
       val qnorm = normDist.inverseCumulativeProbability(1 - threshold/2)
-      sdnGenesDict.get(aSignature.signature.length)
+      sdnGenesDict.get(aSignature.signature.length).map(_ * qnorm)
     }
 
 
