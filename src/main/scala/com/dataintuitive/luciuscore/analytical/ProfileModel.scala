@@ -95,16 +95,24 @@ object ProfileModel {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // give p vals one based index, filter out all more than siglevel, then drop each DbRows corresponding indices
       val significantIndices = database.map(row => (row.pwid, row.sampleAnnotations))
-        .map(taggedannot => (taggedannot._1, taggedannot._2.p.get.zip(Stream from 1).filter(_._1 <= significanceLevel)))
-        .collect.toMap
+        .map(taggedannot => (taggedannot._1, taggedannot._2.p.getOrElse(Array(0.0)).zip(Stream from 1).filter(_._1 <= significanceLevel)))
 
       val nonSignificantIndices = significantIndices.map(x => (x._1, x._2.map(_._2).toSet))
-        .map(x => (x._1, geneAnnotations.index2ProbesetidDict.keySet diff x._2)).toMap
+        .map(x => (x._1, geneAnnotations.index2ProbesetidDict.keySet diff x._2))
 
-      val filteredDb = database.map(row => (row, nonSignificantIndices(row.pwid)))
-        .map(tuple => tuple._1.dropProbesetsByIndex(tuple._2, rerank = false))
+      //val filteredDbOne = AnalysableState.database.map(row => (row, nonSignificantIndices.lookup(row.pwid)))
 
-      filteredDb.map(x => (x, significantIndices(x.pwid).map(_._2)))
+      val filteredDbOne = AnalysableState.database.keyBy(x => x.pwid)
+
+      val joinedOne = filteredDbOne.join(nonSignificantIndices).map{case (k, v) => v}
+
+      val filteredDbTwo = joinedOne.map(tuple => tuple._1.dropProbesetsByIndex(tuple._2, rerank = false))
+
+      val filteredDbThree = filteredDbTwo.keyBy(x => x.pwid)
+
+      val joinedTwo = filteredDbThree.join(significantIndices).map{case (k, v) => v}.map(x => (x._1, x._2.map(_._2)))
+
+      joinedTwo
     }
 
     def retrieveBING: RDD[(DbRow, Array[Int])] = {
