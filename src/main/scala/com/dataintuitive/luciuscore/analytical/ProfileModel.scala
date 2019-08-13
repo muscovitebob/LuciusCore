@@ -32,8 +32,8 @@ object ProfileModel {
 
     val AnalysableBINGState = {
       val inferredprobesets = AnalysableState.geneAnnotations.genes
-        .filter(x => x.dataType.getOrElse(Bing.GeneType.Inferred) == Bing.GeneType.Inferred).map(_.probesetid)
-      val inferredindices = inferredprobesets.map(x => AnalysableState.geneAnnotations.probesetid2IndexDict(x)).toSet
+        .filter(x => x.dataType.getOrElse(Bing.GeneType.Inferred) == Bing.GeneType.Inferred).map(_.probesetid).toSet
+      val inferredindices = inferredprobesets.map(x => AnalysableState.geneAnnotations.probesetid2IndexDict(x))
       val newGeneAnnotations = AnalysableState.geneAnnotations.removeByProbeset(inferredprobesets)
       ProfileDbState(AnalysableState.database.map(_.dropProbesetsByIndex(inferredindices)), newGeneAnnotations)
     }
