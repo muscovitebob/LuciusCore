@@ -6,6 +6,7 @@ import com.dataintuitive.luciuscore.analytical.Signatures.{ProbesetidSignatureV2
 import com.dataintuitive.luciuscore.ZhangScoreFunctions.connectionScore
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+import org.apache.commons.math3.distribution.NormalDistribution
 
 object ProfileModel {
   /**
@@ -117,6 +118,13 @@ object ProfileModel {
 
     def retrieveBING: RDD[(DbRow, Array[Int])] = {
       ???
+    }
+
+    def calculateConfidenceInterval(aSignature: ProbesetidSignatureV2, sdnGenesDict: Map[Int, Double],
+                                    threshold: Double = 1.0/analysableSamples.count): Option[Double] = {
+      val normDist = new NormalDistribution(0, 1)
+      val qnorm = normDist.inverseCumulativeProbability(1 - threshold/2)
+      sdnGenesDict.get(aSignature.signature.length)
     }
 
 
