@@ -30,6 +30,14 @@ object ProfileModel {
     val unAnalysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isEmpty).map(x => x.pwid)
     val analysableSamples = WholeState.database.filter(x => x.sampleAnnotations.t.isDefined).map(x => x.pwid)
 
+    val AnalysableBINGState = {
+      val inferredprobesets = AnalysableState.geneAnnotations.genes
+        .filter(x => x.dataType.getOrElse(Bing.GeneType.Inferred) == Bing.GeneType.Inferred).map(_.probesetid)
+      val inferredindices = inferredprobesets.map(x => AnalysableState.geneAnnotations.probesetid2IndexDict(x)).toSet
+      val newGeneAnnotations = AnalysableState.geneAnnotations.removeByProbeset(inferredprobesets)
+      ProfileDbState(AnalysableState.database.map(_.dropProbesetsByIndex(inferredindices)), newGeneAnnotations)
+    }
+
 
     /**
     def dropGenes(droplist: Set[Symbol]): ProfileDatabase = {
@@ -45,6 +53,8 @@ object ProfileModel {
       new ProfileDatabase(this.spark, droppedDatabase, droppedGeneAnnotations)
     }
       **/
+
+
     def dropProbesets(droplist: Set[Probesetid]): ProfileDatabase = {
       require(droplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
 
@@ -73,6 +83,8 @@ object ProfileModel {
 
     }**/
 
+
+
     def keepProbesets(keeplist : Set[Probesetid]): ProfileDatabase = {
       require(keeplist.forall(probeset => geneAnnotations.probesetid2SymbolDict.contains(probeset)))
 
@@ -87,7 +99,7 @@ object ProfileModel {
     }
 
     /**
-      * DbRows with only the significant entires for t, p and r. r is not re-ranked. Each DbRow includes Array of
+      * DbRows with only the significant entries for t, p and r. r is not re-ranked. Each DbRow includes Array of
       * significant indices we subset for tracing back to original annotation
       * @param significanceLevel
       * @return
@@ -95,13 +107,11 @@ object ProfileModel {
     def retrieveSignificant(significanceLevel: Double = 0.5): RDD[(DbRow, Array[Int])] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // give p vals one based index, filter out all more than siglevel, then drop each DbRows corresponding indices
-      val significantIndices = database.map(row => (row.pwid, row.sampleAnnotations))
+      val significantIndices = AnalysableState.database.map(row => (row.pwid, row.sampleAnnotations))
         .map(taggedannot => (taggedannot._1, taggedannot._2.p.getOrElse(Array(0.0)).zip(Stream from 1).filter(_._1 <= significanceLevel)))
 
       val nonSignificantIndices = significantIndices.map(x => (x._1, x._2.map(_._2).toSet))
         .map(x => (x._1, geneAnnotations.index2ProbesetidDict.keySet diff x._2))
-
-      //val filteredDbOne = AnalysableState.database.map(row => (row, nonSignificantIndices.lookup(row.pwid)))
 
       val filteredDbOne = AnalysableState.database.keyBy(x => x.pwid)
 
@@ -116,10 +126,16 @@ object ProfileModel {
       joinedTwo
     }
 
-    def retrieveBING: RDD[(DbRow, Array[Int])] = {
-      ???
-    }
 
+    /**
+      * two-sided confidence interval for a Zhang score using data from simulation studies that is not public, sorry.
+      * apart from the simulation stdev value for a particular signature size, only determined by the number of samples and
+      * the per comparison error rate (PCER) threshold which is by default 1/SampleNumber
+      * @param aSignature
+      * @param sdnGenesDict
+      * @param threshold
+      * @return
+      */
     def calculateConfidenceInterval(aSignature: ProbesetidSignatureV2, sdnGenesDict: Map[Int, Double],
                                     threshold: Double = 1.0/analysableSamples.count): Option[Double] = {
       val normDist = new NormalDistribution(0, 1)
@@ -127,12 +143,19 @@ object ProfileModel {
       sdnGenesDict.get(aSignature.signature.length).map(_ * qnorm)
     }
 
+    case class Scored(pwid: Option[String], zhangScore: Double, confIntTwoSided: Option[Double], signature: ProbesetidSignatureV2)
+
 
     def zhangScore(aSignature: ProbesetidSignatureV2,
-                   significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true): RDD[(Option[String], ProbesetidSignatureV2, Double)] = {
+                   significantOnly: Boolean = true, significanceLevel: Double = 0.05, bingOnly: Boolean = true,
+                   confIntervalDict: Map[Int, Double] = Map()): RDD[Scored] = {
       require(significanceLevel >= 0 && significanceLevel <= 1)
       // first leave only the probesets of interest
-      val localData = ProfileDatabase.this.keepProbesets(aSignature.values.toSet).AnalysableState
+      val localData = if (bingOnly) {
+        ProfileDatabase.this.keepProbesets(aSignature.values.toSet).AnalysableBINGState
+      } else {
+        ProfileDatabase.this.keepProbesets(aSignature.values.toSet).AnalysableState
+      }
       // now subset by significance
       val remainingDbRows = if (significantOnly) {
         val significant = retrieveSignificant(significanceLevel)
@@ -141,10 +164,18 @@ object ProfileModel {
         significantDbRows
       } else {localData.database}
 
+      val confidence = if (confIntervalDict.nonEmpty) {
+        calculateConfidenceInterval(aSignature, confIntervalDict)
+      } else None
+
       val scored = remainingDbRows.map(
-        row => (row.pwid, aSignature,
-          if (row.sampleAnnotations.r.get.nonEmpty) {connectionScore(row.sampleAnnotations.r.get, aSignature.r)}
-          else {0.0}))
+        row => Scored(row.pwid,
+          if (row.sampleAnnotations.r.get.nonEmpty) {
+            connectionScore(row.sampleAnnotations.r.get, aSignature.r)
+          }
+          else {0.0}, confidence,
+          aSignature)
+      )
       scored
     }
 
