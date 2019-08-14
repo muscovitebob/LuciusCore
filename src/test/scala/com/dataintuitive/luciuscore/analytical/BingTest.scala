@@ -6,7 +6,7 @@ import com.dataintuitive.test.BaseSparkSessionSpec
 import org.scalatest.FlatSpec
 
 class BingTest extends FlatSpec with BaseSparkSessionSpec{
-  val bingFilepath = "src/main/resources/BING.csv"
+  val bingFilepath = "src/test/resources/BING.csv"
   val parsedBing = readBING(spark, bingFilepath)
   val bingInfo1 = new bingInformation(parsedBing)
 

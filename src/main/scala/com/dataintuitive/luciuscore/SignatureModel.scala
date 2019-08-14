@@ -1,6 +1,5 @@
 package com.dataintuitive.luciuscore
 
-import com.dataintuitive.luciuscore.GeneModel.GenesV2
 import com.dataintuitive.luciuscore.utilities.SignedString
 import com.dataintuitive.luciuscore.Model._
 import scala.math.{abs, signum}

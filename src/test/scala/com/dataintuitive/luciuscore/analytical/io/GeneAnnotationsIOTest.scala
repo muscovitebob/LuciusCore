@@ -8,7 +8,8 @@ import com.dataintuitive.test.BaseSparkSessionSpec
 class GeneAnnotationsIOTest extends FlatSpec with BaseSparkSessionSpec {
 
   val genesV2 =
-    loadGeneAnnotationsFromFile(spark, "src/test/resources/geneAnnotationsV2.txt", "\t", "src/main/resources/BING.csv")
+    loadGeneAnnotationsFromFile(spark, "src/test/resources/geneAnnotationsV2.txt",
+      "\t", "src/test/resources/BING.csv")
 
   "Loading V2 gene data" should "work" in {
     assert(genesV2.genes(0).symbol.get.head == "PSME1")

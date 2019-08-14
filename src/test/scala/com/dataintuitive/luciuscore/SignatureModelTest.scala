@@ -1,7 +1,6 @@
 package com.dataintuitive.luciuscore
 
 import com.dataintuitive.luciuscore.analytical.Bing.GeneType
-import com.dataintuitive.luciuscore.GeneModel.{GeneAnnotationV2, GenesV2}
 import com.dataintuitive.luciuscore.Model._
 import com.dataintuitive.luciuscore.SignatureModel._
 import org.scalatest.{FlatSpec, Matchers}

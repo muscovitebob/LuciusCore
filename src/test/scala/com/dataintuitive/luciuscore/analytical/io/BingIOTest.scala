@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class BingIOTest extends FlatSpec with BaseSparkSessionSpec with Matchers {
 
-  val bingFilepath = "src/main/resources/BING.csv"
+  val bingFilepath = "src/test/resources/BING.csv"
 
   "Reading BING.csv into an RDD of case classes" should "work" in {
     val parsedBing = readBING(spark, bingFilepath)
